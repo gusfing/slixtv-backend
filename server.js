@@ -60,7 +60,10 @@ const server = http.createServer((req, res) => {
     safePath = '/index.html';
   }
   
-  const filePath = path.join(__dirname, safePath);
+  let filePath = path.join(__dirname, 'public', safePath);
+  if (!fs.existsSync(filePath)) {
+    filePath = path.join(__dirname, safePath);
+  }
 
   fs.stat(filePath, (err, stats) => {
     if (!err && stats.isFile()) {
@@ -71,7 +74,9 @@ const server = http.createServer((req, res) => {
       fs.createReadStream(filePath).pipe(res);
     } else {
       // 3. SPA Fallback: Any unknown route (e.g. /dashboard, /login, /admin) -> index.html
-      const indexPath = path.join(__dirname, 'index.html');
+      const indexPath = fs.existsSync(path.join(__dirname, 'public', 'index.html'))
+        ? path.join(__dirname, 'public', 'index.html')
+        : path.join(__dirname, 'index.html');
       fs.readFile(indexPath, (err, data) => {
         if (err) {
           res.writeHead(500, { 'Content-Type': 'text/plain' });
