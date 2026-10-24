@@ -1,0 +1,23 @@
+# Build & Archive artifacts
+*.apk
+*.idsig
+*.bak
+
+# Tools & Decompiled sources
+tools/
+decompiled_apk/
+backup_data/
+
+# Analysis & Local Scripts
+all-api-endpoints.json
+analyze*.js
+rebrand*.js
+
+# Dependencies & Vercel
+node_modules/
+.vercel/
+.env*.local
+
+# System files
+.DS_Store
+Thumbs.db
