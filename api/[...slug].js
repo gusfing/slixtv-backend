@@ -14,12 +14,14 @@ module.exports = async (req, res) => {
     return;
   }
 
-  // 2. Extract pathname and query parameters accurately
+  // 2. Reconstruct target path cleanly
   let targetPath = req.url;
-  if (req.query && req.query.slug) {
-    const slugPath = Array.isArray(req.query.slug) ? req.query.slug.join('/') : req.query.slug;
+  if (targetPath.includes('[...slug]')) {
+    const slug = req.query.slug || req.query.match;
+    const slugPath = Array.isArray(slug) ? slug.join('/') : (slug || '');
     const urlObj = new URL(req.url, 'http://localhost');
     urlObj.searchParams.delete('slug');
+    urlObj.searchParams.delete('match');
     const qs = urlObj.searchParams.toString();
     targetPath = `/api/${slugPath}${qs ? '?' + qs : ''}`;
   }
