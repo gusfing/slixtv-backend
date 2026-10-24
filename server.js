@@ -40,6 +40,25 @@ const server = http.createServer((req, res) => {
       method: req.method,
       headers: headers
     }, (proxyRes) => {
+      if (pathname.includes('sidebar-colors')) {
+        const chunks = [];
+        proxyRes.on('data', chunk => chunks.push(chunk));
+        proxyRes.on('end', () => {
+          let body = Buffer.concat(chunks).toString('utf8');
+          body = body.replace(/#ff6512/gi, '#1F80E0');
+          body = body.replace(/#fa8c16/gi, '#1F80E0');
+          body = body.replace(/#ff9900/gi, '#1F80E0');
+          body = body.replace(/cast4k/gi, 'slixtv');
+
+          const h = { ...proxyRes.headers };
+          delete h['content-length'];
+          h['content-length'] = Buffer.byteLength(body);
+          res.writeHead(proxyRes.statusCode, h);
+          res.end(body);
+        });
+        return;
+      }
+
       res.writeHead(proxyRes.statusCode, proxyRes.headers);
       proxyRes.pipe(res);
     });

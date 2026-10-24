@@ -36,14 +36,35 @@ module.exports = async (req, res) => {
   };
 
   const proxyReq = https.request(options, (proxyRes) => {
-    res.status(proxyRes.statusCode);
+    // If endpoint is sidebar-colors, intercept and force Hotstar theme colors
+    if (targetPath.includes('sidebar-colors')) {
+      const chunks = [];
+      proxyRes.on('data', chunk => chunks.push(chunk));
+      proxyRes.on('end', () => {
+        let body = Buffer.concat(chunks).toString('utf8');
+        body = body.replace(/#ff6512/gi, '#1F80E0');
+        body = body.replace(/#fa8c16/gi, '#1F80E0');
+        body = body.replace(/#ff9900/gi, '#1F80E0');
+        body = body.replace(/cast4k/gi, 'slixtv');
+        
+        res.status(proxyRes.statusCode);
+        for (const [key, value] of Object.entries(proxyRes.headers)) {
+          if (!['transfer-encoding', 'content-length'].includes(key.toLowerCase())) {
+            res.setHeader(key, value);
+          }
+        }
+        res.setHeader('Content-Length', Buffer.byteLength(body));
+        res.end(body);
+      });
+      return;
+    }
 
+    res.status(proxyRes.statusCode);
     for (const [key, value] of Object.entries(proxyRes.headers)) {
       if (key.toLowerCase() !== 'transfer-encoding') {
         res.setHeader(key, value);
       }
     }
-
     proxyRes.pipe(res);
   });
 

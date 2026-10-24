@@ -10,8 +10,13 @@ backup_data/
 
 # Analysis & Local Scripts
 all-api-endpoints.json
+*.py
+*.txt
+check_*.js
 analyze*.js
 rebrand*.js
+clean_*.js
+find_*.js
 
 # Dependencies & Vercel
 node_modules/
@@ -21,9 +26,7 @@ node_modules/
 # System files
 .DS_Store
 Thumbs.db
-
 APK_ANALYSIS_SUMMARY.md
-
 check_connections.js
 clean_last_refs.js
 find_snippet.js
