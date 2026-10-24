@@ -14,8 +14,15 @@ module.exports = async (req, res) => {
     return;
   }
 
-  // 2. Extract pathname and query
-  const targetPath = req.url;
+  // 2. Extract pathname and query parameters accurately
+  let targetPath = req.url;
+  if (req.query && req.query.slug) {
+    const slugPath = Array.isArray(req.query.slug) ? req.query.slug.join('/') : req.query.slug;
+    const urlObj = new URL(req.url, 'http://localhost');
+    urlObj.searchParams.delete('slug');
+    const qs = urlObj.searchParams.toString();
+    targetPath = `/api/${slugPath}${qs ? '?' + qs : ''}`;
+  }
 
   // 3. Prepare headers for proxying
   const forwardedHeaders = { ...req.headers };
@@ -33,10 +40,8 @@ module.exports = async (req, res) => {
   };
 
   const proxyReq = https.request(options, (proxyRes) => {
-    // Forward Set-Cookie and status code
     res.status(proxyRes.statusCode);
 
-    // Forward response headers
     for (const [key, value] of Object.entries(proxyRes.headers)) {
       if (key.toLowerCase() !== 'transfer-encoding') {
         res.setHeader(key, value);
