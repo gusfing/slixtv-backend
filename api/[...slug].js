@@ -14,17 +14,11 @@ module.exports = async (req, res) => {
     return;
   }
 
-  // 2. Reconstruct target path cleanly
-  let targetPath = req.url;
-  if (targetPath.includes('[...slug]')) {
-    const slug = req.query.slug || req.query.match;
-    const slugPath = Array.isArray(slug) ? slug.join('/') : (slug || '');
-    const urlObj = new URL(req.url, 'http://localhost');
-    urlObj.searchParams.delete('slug');
-    urlObj.searchParams.delete('match');
-    const qs = urlObj.searchParams.toString();
-    targetPath = `/api/${slugPath}${qs ? '?' + qs : ''}`;
-  }
+  // 2. Clean Vercel internal query parameters ('slug', 'match') from path
+  const urlObj = new URL(req.url, 'http://localhost');
+  urlObj.searchParams.delete('slug');
+  urlObj.searchParams.delete('match');
+  const targetPath = urlObj.pathname + (urlObj.searchParams.toString() ? '?' + urlObj.searchParams.toString() : '');
 
   // 3. Prepare headers for proxying
   const forwardedHeaders = { ...req.headers };
