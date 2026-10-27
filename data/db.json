@@ -305,34 +305,72 @@
       "id": "0e5f7cc3-7979-4bdd-9323-11889ea7cdf8",
       "code": "RL4KUR6QJ4",
       "type": "RESELLER",
-      "status": "AVAILABLE",
-      "validityDays": 360,
-      "activationType": "TRIAL",
-      "customerName": "Alex Test",
+      "status": "ACTIVE",
+      "validityDays": 30,
+      "activationType": "FULL",
+      "customerName": "Kun",
       "customerPhone": "9876543210",
-      "resellerActivatedAt": "2026-10-27T20:10:19.295Z",
-      "activatedAt": "2026-10-27T20:10:19.295Z",
-      "expiresAt": "2027-10-22T20:10:19.295Z",
-      "referenceMac": null,
-      "macAddress": null,
+      "resellerActivatedAt": "2026-10-27T21:31:30.215Z",
+      "activatedAt": "2026-10-27T21:31:30.215Z",
+      "expiresAt": "2026-11-26T21:31:30.215Z",
+      "referenceMac": "00:1E:C2:89:37:1A",
+      "macAddress": "00:1e:c2:89:37:1a",
       "createdAt": "2026-10-14T19:20:38.008Z",
       "profile": {
-        "id": "e824daae-73a5-444f-a500-2bcf50353ca0",
-        "name": "s4k",
-        "description": null,
-        "source": "assigned",
+        "id": "profile-kun-standalone",
+        "name": "kun",
+        "description": "Custom Profile Kun",
+        "source": "own",
+        "isActive": true,
         "defaultPortal": {
-          "id": "c0388fe4-eb83-4849-b286-4225586d133a",
-          "name": "Stream4k"
+          "id": "b56e96c2-8152-42bc-a5e5-a0d047f4846b",
+          "name": "Glo"
         },
         "portals": [
           {
+            "id": "b56e96c2-8152-42bc-a5e5-a0d047f4846b",
+            "name": "Glo",
+            "url": "http://glotv.me",
+            "portalCode": "8RB0WCK",
+            "isDefault": true
+          },
+          {
             "id": "c0388fe4-eb83-4849-b286-4225586d133a",
             "name": "Stream4k",
-            "isDefault": true
+            "url": "http://stream4k.me",
+            "portalCode": "S4KPRO",
+            "isDefault": false
           }
         ],
-        "assignedAt": "2026-10-14T19:48:33.777Z"
+        "profilePortals": [
+          {
+            "id": "pp-kun-0",
+            "profileId": "profile-kun-standalone",
+            "portalId": "b56e96c2-8152-42bc-a5e5-a0d047f4846b",
+            "isDefault": true,
+            "portal": {
+              "id": "b56e96c2-8152-42bc-a5e5-a0d047f4846b",
+              "name": "Glo",
+              "url": "http://glotv.me",
+              "portalCode": "8RB0WCK",
+              "isActive": true
+            }
+          },
+          {
+            "id": "pp-kun-1",
+            "profileId": "profile-kun-standalone",
+            "portalId": "c0388fe4-eb83-4849-b286-4225586d133a",
+            "isDefault": false,
+            "portal": {
+              "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+              "name": "Stream4k",
+              "url": "http://stream4k.me",
+              "portalCode": "S4KPRO",
+              "isActive": true
+            }
+          }
+        ],
+        "assignedAt": null
       },
       "shortCode": null,
       "canRenew": true,
@@ -4532,14 +4570,14 @@
         {
           "id": "b56e96c2-8152-42bc-a5e5-a0d047f4846b",
           "name": "Glo",
-          "url": "http://glotv.me",
+          "url": "http://play.suntv.biz",
           "portalCode": "8RB0WCK",
           "isDefault": true
         },
         {
           "id": "c0388fe4-eb83-4849-b286-4225586d133a",
           "name": "Stream4k",
-          "url": "http://stream4k.me",
+          "url": "https://tv.stream4k.ac",
           "portalCode": "S4KPRO",
           "isDefault": false
         }
@@ -4553,7 +4591,7 @@
           "portal": {
             "id": "b56e96c2-8152-42bc-a5e5-a0d047f4846b",
             "name": "Glo",
-            "url": "http://glotv.me",
+            "url": "http://play.suntv.biz",
             "portalCode": "8RB0WCK",
             "isActive": true
           }
@@ -4566,7 +4604,7 @@
           "portal": {
             "id": "c0388fe4-eb83-4849-b286-4225586d133a",
             "name": "Stream4k",
-            "url": "http://stream4k.me",
+            "url": "https://tv.stream4k.ac",
             "portalCode": "S4KPRO",
             "isActive": true
           }

@@ -87,28 +87,56 @@ function handleStandaloneRequest(req, res) {
                  (db.hierarchyProfiles || []).find(p => (p.name || '').toLowerCase() === profileName);
 
     if (prof) {
-      const portals = (prof.portals && prof.portals.length) ? prof.portals : (db.portals || []);
-      const result = portals.map(p => ({
-        name: p.name || prof.name,
-        code: p.portalCode || p.code || 'SLIXTV',
-        url: p.url || 'http://glotv.me',
-        is_default: p.isDefault !== false
-      }));
+      const rawPortals = (prof.portals && prof.portals.length) ? prof.portals : (db.portals || []);
+      const result = rawPortals.map(p => {
+        const livePortal = (db.portals || []).find(dp => dp.id === p.id || (dp.name && p.name && dp.name.toLowerCase() === p.name.toLowerCase()));
+        let effectiveUrl = (livePortal && livePortal.url) ? livePortal.url : (p.url || 'http://play.suntv.biz');
+        // Fix legacy dead URLs
+        if (effectiveUrl.includes('stream4k.me')) effectiveUrl = 'https://tv.stream4k.ac';
+        if (effectiveUrl.includes('glotv.me')) effectiveUrl = 'http://play.suntv.biz';
+        return {
+          name: p.name || (livePortal && livePortal.name) || prof.name,
+          code: p.portalCode || (livePortal && livePortal.portalCode) || p.code || 'SLIXTV',
+          url: effectiveUrl,
+          is_default: p.isDefault !== false
+        };
+      });
       sendJson(200, result);
       return true;
     }
 
-    const fallback = (db.portals || []).map(p => ({
-      name: p.name,
-      code: p.portalCode || 'SLIXTV',
-      url: p.url,
-      is_default: p.isActive !== false
-    }));
+    const fallback = (db.portals || []).map(p => {
+      let url = p.url;
+      if (url.includes('stream4k.me')) url = 'https://tv.stream4k.ac';
+      if (url.includes('glotv.me')) url = 'http://play.suntv.biz';
+      return {
+        name: p.name,
+        code: p.portalCode || 'SLIXTV',
+        url: url,
+        is_default: p.isActive !== false
+      };
+    });
     sendJson(200, fallback);
     return true;
   }
 
   if (pathname.includes('check-device.php')) {
+    const mac = (searchParams.get('mac_address') || searchParams.get('mac') || '').toUpperCase().trim();
+    const codeMatch = (db.codes || []).find(c => 
+      (c.referenceMac && c.referenceMac.toUpperCase() === mac) ||
+      (c.macAddress && c.macAddress.toUpperCase() === mac)
+    );
+
+    // If it's a legacy MAC (00:1E:99:...) and NOT explicitly registered in db.codes, return false so the Android app auto-migrates to 00:1E:C2:...
+    if (mac.startsWith('00:1E:99:') && !codeMatch) {
+      sendJson(200, {
+        status: "success",
+        isRegistered: false,
+        message: "Legacy MAC not registered, proceed with modern migration"
+      });
+      return true;
+    }
+
     sendJson(200, {
       status: "success",
       isRegistered: true,
@@ -277,8 +305,9 @@ function handleStandaloneRequest(req, res) {
   // 4. RESELLER & ADMIN CODE ACTIONS
   if (pathname.includes('/codes/') && !pathname.endsWith('/codes')) {
     const parts = pathname.split('/');
-    const codeId = parts[5];
-    const action = parts[6] || '';
+    const codesIdx = parts.indexOf('codes');
+    const codeId = codesIdx !== -1 ? parts[codesIdx + 1] : parts[5];
+    const action = codesIdx !== -1 ? (parts[codesIdx + 2] || '') : (parts[6] || '');
 
     const codeItem = db.codes.find(c => c.id === codeId || c.code === codeId);
     if (!codeItem) {
