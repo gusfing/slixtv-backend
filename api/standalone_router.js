@@ -213,11 +213,11 @@ function handleStandaloneRequest(req, res) {
     }
   }
 
-  // 4. RESELLER CODE ACTIONS (UNLINK / EDIT)
-  if (pathname.startsWith('/api/v1/reseller/codes/')) {
+  // 4. RESELLER & ADMIN CODE ACTIONS
+  if (pathname.includes('/codes/') && !pathname.endsWith('/codes')) {
     const parts = pathname.split('/');
     const codeId = parts[5];
-    const action = parts[6];
+    const action = parts[6] || '';
 
     const codeItem = db.codes.find(c => c.id === codeId || c.code === codeId);
     if (!codeItem) {
@@ -225,7 +225,85 @@ function handleStandaloneRequest(req, res) {
       return true;
     }
 
-    if (action === 'unlink' || req.method === 'DELETE') {
+    const body = req.body || {};
+
+    // ACTIVATE CODE
+    if (action === 'activate' && req.method === 'POST') {
+      const now = new Date();
+      const activationType = body.activationType || 'FULL';
+      const months = parseInt(body.months || (activationType === 'TRIAL' ? '3' : '12'), 10);
+      
+      const expiry = new Date(now);
+      expiry.setDate(expiry.getDate() + (activationType === 'TRIAL' ? (codeItem.validityDays || 90) : months * 30));
+
+      codeItem.customerName = body.customerName || codeItem.customerName || "Customer";
+      codeItem.customerPhone = body.customerPhone || codeItem.customerPhone || "";
+      codeItem.activationType = activationType;
+      codeItem.validityDays = activationType === 'TRIAL' ? (codeItem.validityDays || 90) : months * 30;
+      codeItem.resellerActivatedAt = now.toISOString();
+      codeItem.activatedAt = now.toISOString();
+      codeItem.expiresAt = expiry.toISOString();
+      
+      if (body.referenceMac) {
+        codeItem.referenceMac = body.referenceMac.trim();
+        codeItem.macAddress = body.referenceMac.trim().toLowerCase();
+        codeItem.status = 'ACTIVE';
+      } else {
+        codeItem.status = 'ASSIGNED';
+      }
+
+      if (body.profileId) {
+        const foundProf = db.profiles.find(p => p.id === body.profileId);
+        codeItem.profile = foundProf || { id: body.profileId, name: 's4k' };
+      }
+
+      codeItem.canRenew = true;
+      codeItem.canExtend = true;
+      saveDb();
+
+      sendJson(200, {
+        success: true,
+        message: "Code activated successfully",
+        data: codeItem
+      });
+      return true;
+    }
+
+    // RENEW CODE
+    if (action === 'renew' && req.method === 'POST') {
+      const months = parseInt(body.months || '12', 10);
+      const curExpiry = codeItem.expiresAt ? new Date(codeItem.expiresAt) : new Date();
+      curExpiry.setDate(curExpiry.getDate() + (months * 30));
+      codeItem.expiresAt = curExpiry.toISOString();
+      codeItem.status = 'ACTIVE';
+      codeItem.canRenew = true;
+      saveDb();
+      sendJson(200, { success: true, message: "Code renewed successfully", data: codeItem });
+      return true;
+    }
+
+    // EXTEND CODE
+    if (action === 'extend' && req.method === 'POST') {
+      const months = parseInt(body.months || '1', 10);
+      const curExpiry = codeItem.expiresAt ? new Date(codeItem.expiresAt) : new Date();
+      curExpiry.setDate(curExpiry.getDate() + (months * 30));
+      codeItem.expiresAt = curExpiry.toISOString();
+      saveDb();
+      sendJson(200, { success: true, message: "Code extended successfully", data: codeItem });
+      return true;
+    }
+
+    // CHANGE PROFILE
+    if (action === 'profile' && (req.method === 'PATCH' || req.method === 'POST')) {
+      const foundProf = db.profiles.find(p => p.id === body.profileId);
+      codeItem.profile = foundProf || { id: body.profileId, name: 's4k' };
+      saveDb();
+      sendJson(200, { success: true, message: "Profile updated successfully", data: codeItem });
+      return true;
+    }
+
+    // UNLINK DEVICE
+    if (action === 'unlink' || action === 'request-unlink' || action === 'unlink-device' || req.method === 'DELETE') {
       codeItem.macAddress = null;
       codeItem.referenceMac = null;
       codeItem.status = 'AVAILABLE';
@@ -234,11 +312,57 @@ function handleStandaloneRequest(req, res) {
       return true;
     }
 
+    // RESET DEVICE
+    if (action === 'reset-device') {
+      codeItem.macAddress = null;
+      codeItem.referenceMac = null;
+      codeItem.customerName = null;
+      codeItem.customerPhone = null;
+      codeItem.activatedAt = null;
+      codeItem.expiresAt = null;
+      codeItem.status = 'AVAILABLE';
+      saveDb();
+      sendJson(200, { success: true, message: "Code fully reset", data: codeItem });
+      return true;
+    }
+
+    // BLOCK / UNBLOCK / EXPIRE
+    if (action === 'block') {
+      codeItem.status = 'BLOCKED';
+      saveDb();
+      sendJson(200, { success: true, message: "Code blocked", data: codeItem });
+      return true;
+    }
+
+    if (action === 'unblock') {
+      codeItem.status = 'ACTIVE';
+      saveDb();
+      sendJson(200, { success: true, message: "Code unblocked", data: codeItem });
+      return true;
+    }
+
+    if (action === 'expire') {
+      codeItem.status = 'EXPIRED';
+      saveDb();
+      sendJson(200, { success: true, message: "Code expired", data: codeItem });
+      return true;
+    }
+
+    // GET SINGLE CODE
+    if (!action && req.method === 'GET') {
+      sendJson(200, { success: true, data: codeItem });
+      return true;
+    }
+
+    // GENERAL EDIT (PATCH / PUT)
     if (req.method === 'PATCH' || req.method === 'PUT') {
-      const body = req.body || {};
       if (body.customerName !== undefined) codeItem.customerName = body.customerName;
       if (body.customerPhone !== undefined) codeItem.customerPhone = body.customerPhone;
       if (body.status !== undefined) codeItem.status = body.status;
+      if (body.referenceMac !== undefined) {
+        codeItem.referenceMac = body.referenceMac;
+        codeItem.macAddress = body.referenceMac ? body.referenceMac.toLowerCase() : null;
+      }
       saveDb();
       sendJson(200, { success: true, data: codeItem });
       return true;

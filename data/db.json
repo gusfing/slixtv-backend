@@ -305,22 +305,39 @@
       "id": "0e5f7cc3-7979-4bdd-9323-11889ea7cdf8",
       "code": "RL4KUR6QJ4",
       "type": "RESELLER",
-      "status": "ALLOCATED",
-      "validityDays": 365,
-      "activationType": "FULL",
-      "customerName": null,
-      "customerPhone": null,
-      "resellerActivatedAt": null,
-      "activatedAt": null,
-      "expiresAt": null,
+      "status": "AVAILABLE",
+      "validityDays": 360,
+      "activationType": "TRIAL",
+      "customerName": "Alex Test",
+      "customerPhone": "9876543210",
+      "resellerActivatedAt": "2026-10-27T20:10:19.295Z",
+      "activatedAt": "2026-10-27T20:10:19.295Z",
+      "expiresAt": "2027-10-22T20:10:19.295Z",
       "referenceMac": null,
       "macAddress": null,
       "createdAt": "2026-10-14T19:20:38.008Z",
-      "profile": null,
+      "profile": {
+        "id": "e824daae-73a5-444f-a500-2bcf50353ca0",
+        "name": "s4k",
+        "description": null,
+        "source": "assigned",
+        "defaultPortal": {
+          "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+          "name": "Stream4k"
+        },
+        "portals": [
+          {
+            "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+            "name": "Stream4k",
+            "isDefault": true
+          }
+        ],
+        "assignedAt": "2026-10-14T19:48:33.777Z"
+      },
       "shortCode": null,
-      "canRenew": false,
+      "canRenew": true,
       "renewBlockedReason": "Only a code in use by a customer can be renewed",
-      "canExtend": false,
+      "canExtend": true,
       "extendBlockedReason": "Only trial codes can be extended — renew a paid code instead"
     },
     {

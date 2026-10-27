@@ -31,3 +31,7 @@ check_connections.js
 clean_last_refs.js
 find_snippet.js
 build_db.js
+
+test_activate.js
+find_*.js
+inspect_activate.js
