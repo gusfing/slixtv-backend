@@ -370,8 +370,37 @@ function handleStandaloneRequest(req, res) {
   }
 
   // 5. PROFILES & PORTALS
-  if (pathname === '/api/v1/reseller/profiles' || pathname === '/api/v1/hierarchy/profiles') {
-    sendJson(200, { success: true, data: db.profiles });
+  if (pathname === '/api/v1/hierarchy/profiles') {
+    const list = (db.hierarchyProfiles && db.hierarchyProfiles.length) ? db.hierarchyProfiles : (db.profiles || []);
+    for (const p of list) {
+      if (!Array.isArray(p.profilePortals)) {
+        p.profilePortals = (p.portals || []).map((portal, idx) => ({
+          id: `pp-${p.id}-${idx}`,
+          profileId: p.id,
+          portalId: portal.id,
+          isDefault: portal.isDefault || false,
+          portal: portal
+        }));
+      }
+    }
+    sendJson(200, { success: true, data: list });
+    return true;
+  }
+
+  if (pathname === '/api/v1/reseller/profiles') {
+    const list = db.profiles || [];
+    for (const p of list) {
+      if (!Array.isArray(p.profilePortals)) {
+        p.profilePortals = (p.portals || []).map((portal, idx) => ({
+          id: `pp-${p.id}-${idx}`,
+          profileId: p.id,
+          portalId: portal.id,
+          isDefault: portal.isDefault || false,
+          portal: portal
+        }));
+      }
+    }
+    sendJson(200, { success: true, data: list });
     return true;
   }
 
@@ -427,6 +456,63 @@ function handleStandaloneRequest(req, res) {
 
   if (pathname === '/api/v1/admin/settings/sidebar-descriptions' || pathname === '/api/v1/reseller/settings') {
     sendJson(200, { success: true, data: db.settings });
+    return true;
+  }
+
+  // PARTNER CREDITS PURCHASE CONFIG
+  if (pathname === '/api/v1/partner/credits/purchase-config') {
+    sendJson(200, {
+      success: true,
+      data: {
+        enabled: false,
+        currency: "USD",
+        unitPrice: 5,
+        minPurchase: 10,
+        stripeEnabled: false,
+        cryptoEnabled: false
+      }
+    });
+    return true;
+  }
+
+  // PARTNER ASSISTANT SUMMARY
+  if (pathname === '/api/v1/partner/assistant/summary') {
+    const total = db.codes.length;
+    const inUse = db.codes.filter(c => c.status === 'ACTIVE' || c.status === 'ASSIGNED').length;
+    const unused = Math.max(0, total - inUse);
+    sendJson(200, {
+      success: true,
+      data: {
+        enabled: true,
+        credits: (db.credits && db.credits.balance) || 0,
+        codes: {
+          unused,
+          inUse,
+          total
+        }
+      }
+    });
+    return true;
+  }
+
+  if (pathname === '/api/v1/partner/assistant/lookup') {
+    const q = (searchParams.get('q') || '').toLowerCase().trim();
+    const results = db.codes.filter(c => 
+      (c.code && c.code.toLowerCase().includes(q)) ||
+      (c.customerName && c.customerName.toLowerCase().includes(q)) ||
+      (c.customerPhone && c.customerPhone.includes(q))
+    ).slice(0, 10);
+    sendJson(200, { success: true, data: results });
+    return true;
+  }
+
+  if (pathname === '/api/v1/partner/assistant/expiring') {
+    sendJson(200, { success: true, data: [] });
+    return true;
+  }
+
+  if (pathname === '/api/v1/customer/assistant/summary') {
+    sendJson(200, { success: true, data: { enabled: false } });
     return true;
   }
 

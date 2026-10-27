@@ -4472,7 +4472,20 @@
           "isDefault": true
         }
       ],
-      "assignedAt": null
+      "assignedAt": null,
+      "profilePortals": [
+        {
+          "id": "pp-a85843d0-dc18-4133-8505-d753e450b19d-0",
+          "profileId": "a85843d0-dc18-4133-8505-d753e450b19d",
+          "portalId": "b56e96c2-8152-42bc-a5e5-a0d047f4846b",
+          "isDefault": true,
+          "portal": {
+            "id": "b56e96c2-8152-42bc-a5e5-a0d047f4846b",
+            "name": "Glo",
+            "isDefault": true
+          }
+        }
+      ]
     },
     {
       "id": "e824daae-73a5-444f-a500-2bcf50353ca0",
@@ -4490,7 +4503,20 @@
           "isDefault": true
         }
       ],
-      "assignedAt": "2026-10-14T19:48:33.777Z"
+      "assignedAt": "2026-10-14T19:48:33.777Z",
+      "profilePortals": [
+        {
+          "id": "pp-e824daae-73a5-444f-a500-2bcf50353ca0-0",
+          "profileId": "e824daae-73a5-444f-a500-2bcf50353ca0",
+          "portalId": "c0388fe4-eb83-4849-b286-4225586d133a",
+          "isDefault": true,
+          "portal": {
+            "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+            "name": "Stream4k",
+            "isDefault": true
+          }
+        }
+      ]
     }
   ],
   "portals": [
@@ -4689,5 +4715,59 @@
   ],
   "portalIssueReports": [
     "{\\"
+  ],
+  "hierarchyProfiles": [
+    {
+      "id": "a85843d0-dc18-4133-8505-d753e450b19d",
+      "name": "glo",
+      "description": "Its other profile",
+      "isActive": true,
+      "ownerId": "d937da3c-9ddd-47e3-9409-90e12349f251",
+      "createdById": "d937da3c-9ddd-47e3-9409-90e12349f251",
+      "createdAt": "2026-10-18T06:39:55.086Z",
+      "updatedAt": "2026-10-23T18:43:44.161Z",
+      "deletedAt": null,
+      "profilePortals": [
+        {
+          "id": "f22a836a-5029-4d67-9f76-8ffbd9e41901",
+          "profileId": "a85843d0-dc18-4133-8505-d753e450b19d",
+          "portalId": "b56e96c2-8152-42bc-a5e5-a0d047f4846b",
+          "isDefault": true,
+          "createdAt": "2026-10-23T18:43:44.161Z",
+          "portal": {
+            "id": "b56e96c2-8152-42bc-a5e5-a0d047f4846b",
+            "name": "Glo",
+            "url": "http://glotv.me",
+            "portalCode": "8RB0WCK",
+            "isActive": true
+          }
+        }
+      ],
+      "source": "own"
+    },
+    {
+      "id": "e824daae-73a5-444f-a500-2bcf50353ca0",
+      "name": "s4k",
+      "description": null,
+      "isActive": true,
+      "createdAt": "2026-10-13T23:45:17.646Z",
+      "updatedAt": "2026-10-13T23:45:17.646Z",
+      "deletedAt": null,
+      "profilePortals": [
+        {
+          "id": "37e76f68-e4ae-4ead-a8f7-03ba27b7a81f",
+          "profileId": "e824daae-73a5-444f-a500-2bcf50353ca0",
+          "portalId": "c0388fe4-eb83-4849-b286-4225586d133a",
+          "isDefault": true,
+          "createdAt": "2026-10-13T23:45:17.646Z",
+          "portal": {
+            "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+            "name": "Stream4k",
+            "isActive": true
+          }
+        }
+      ],
+      "source": "assigned"
+    }
   ]
 }

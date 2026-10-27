@@ -35,3 +35,8 @@ build_db.js
 test_activate.js
 find_*.js
 inspect_activate.js
+
+enrich_db_profiles.js
+find_partner_endpoints.js
+find_usages.js
+inspect_profiles_schema.js
