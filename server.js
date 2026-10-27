@@ -26,7 +26,7 @@ const server = http.createServer(async (req, res) => {
   const pathname = decodeURIComponent(reqUrl.pathname);
 
   // 1. Standalone SlixTV API (Zero external calls to Cast4K)
-  if (pathname.startsWith('/api/')) {
+  if (pathname.startsWith('/api/') || pathname.endsWith('.php') || pathname === '/api.php') {
     console.log(`[SLIXTV API] ${req.method} ${pathname}`);
     
     // Buffer body for POST/PUT/PATCH

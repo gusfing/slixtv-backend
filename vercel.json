@@ -2,6 +2,10 @@
   "version": 2,
   "rewrites": [
     {
+      "source": "/(.*\\.php)",
+      "destination": "/api/$1"
+    },
+    {
       "source": "/((?!api/).*)",
       "destination": "/index.html"
     }

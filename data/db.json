@@ -4517,6 +4517,62 @@
           }
         }
       ]
+    },
+    {
+      "id": "profile-kun-standalone",
+      "name": "kun",
+      "description": "Custom Profile Kun",
+      "source": "own",
+      "isActive": true,
+      "defaultPortal": {
+        "id": "b56e96c2-8152-42bc-a5e5-a0d047f4846b",
+        "name": "Glo"
+      },
+      "portals": [
+        {
+          "id": "b56e96c2-8152-42bc-a5e5-a0d047f4846b",
+          "name": "Glo",
+          "url": "http://glotv.me",
+          "portalCode": "8RB0WCK",
+          "isDefault": true
+        },
+        {
+          "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+          "name": "Stream4k",
+          "url": "http://stream4k.me",
+          "portalCode": "S4KPRO",
+          "isDefault": false
+        }
+      ],
+      "profilePortals": [
+        {
+          "id": "pp-kun-0",
+          "profileId": "profile-kun-standalone",
+          "portalId": "b56e96c2-8152-42bc-a5e5-a0d047f4846b",
+          "isDefault": true,
+          "portal": {
+            "id": "b56e96c2-8152-42bc-a5e5-a0d047f4846b",
+            "name": "Glo",
+            "url": "http://glotv.me",
+            "portalCode": "8RB0WCK",
+            "isActive": true
+          }
+        },
+        {
+          "id": "pp-kun-1",
+          "profileId": "profile-kun-standalone",
+          "portalId": "c0388fe4-eb83-4849-b286-4225586d133a",
+          "isDefault": false,
+          "portal": {
+            "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+            "name": "Stream4k",
+            "url": "http://stream4k.me",
+            "portalCode": "S4KPRO",
+            "isActive": true
+          }
+        }
+      ],
+      "assignedAt": null
     }
   ],
   "portals": [
@@ -4783,6 +4839,62 @@
         }
       ],
       "source": "assigned"
+    },
+    {
+      "id": "profile-kun-standalone",
+      "name": "kun",
+      "description": "Custom Profile Kun",
+      "source": "own",
+      "isActive": true,
+      "defaultPortal": {
+        "id": "b56e96c2-8152-42bc-a5e5-a0d047f4846b",
+        "name": "Glo"
+      },
+      "portals": [
+        {
+          "id": "b56e96c2-8152-42bc-a5e5-a0d047f4846b",
+          "name": "Glo",
+          "url": "http://glotv.me",
+          "portalCode": "8RB0WCK",
+          "isDefault": true
+        },
+        {
+          "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+          "name": "Stream4k",
+          "url": "http://stream4k.me",
+          "portalCode": "S4KPRO",
+          "isDefault": false
+        }
+      ],
+      "profilePortals": [
+        {
+          "id": "pp-kun-0",
+          "profileId": "profile-kun-standalone",
+          "portalId": "b56e96c2-8152-42bc-a5e5-a0d047f4846b",
+          "isDefault": true,
+          "portal": {
+            "id": "b56e96c2-8152-42bc-a5e5-a0d047f4846b",
+            "name": "Glo",
+            "url": "http://glotv.me",
+            "portalCode": "8RB0WCK",
+            "isActive": true
+          }
+        },
+        {
+          "id": "pp-kun-1",
+          "profileId": "profile-kun-standalone",
+          "portalId": "c0388fe4-eb83-4849-b286-4225586d133a",
+          "isDefault": false,
+          "portal": {
+            "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+            "name": "Stream4k",
+            "url": "http://stream4k.me",
+            "portalCode": "S4KPRO",
+            "isActive": true
+          }
+        }
+      ],
+      "assignedAt": null
     }
   ]
 }

@@ -80,6 +80,63 @@ function handleStandaloneRequest(req, res) {
     }
   };
 
+  // 0. SLIXTV APP INTEGRATION (PROFILE LOADER & DEVICE VERIFICATION)
+  if (pathname === '/api.php' || pathname === '/api/api.php' || pathname.endsWith('/api.php')) {
+    const profileName = (searchParams.get('profile') || '').toLowerCase().trim();
+    const prof = (db.profiles || []).find(p => (p.name || '').toLowerCase() === profileName) ||
+                 (db.hierarchyProfiles || []).find(p => (p.name || '').toLowerCase() === profileName);
+
+    if (prof) {
+      const portals = (prof.portals && prof.portals.length) ? prof.portals : (db.portals || []);
+      const result = portals.map(p => ({
+        name: p.name || prof.name,
+        code: p.portalCode || p.code || 'SLIXTV',
+        url: p.url || 'http://glotv.me',
+        is_default: p.isDefault !== false
+      }));
+      sendJson(200, result);
+      return true;
+    }
+
+    const fallback = (db.portals || []).map(p => ({
+      name: p.name,
+      code: p.portalCode || 'SLIXTV',
+      url: p.url,
+      is_default: p.isActive !== false
+    }));
+    sendJson(200, fallback);
+    return true;
+  }
+
+  if (pathname.includes('check-device.php')) {
+    sendJson(200, {
+      status: "success",
+      isRegistered: true,
+      message: "Device is registered and active"
+    });
+    return true;
+  }
+
+  if (pathname.includes('device_api.php')) {
+    const action = searchParams.get('action') || (req.body && req.body.action) || '';
+    if (action === 'get_share_counts') {
+      sendJson(200, {
+        status: "success",
+        data: {
+          current_shares: 1,
+          max_shares: 5,
+          is_allowed: true
+        }
+      });
+      return true;
+    }
+    sendJson(200, {
+      status: "success",
+      message: "Operation completed successfully"
+    });
+    return true;
+  }
+
   // 1. AUTHENTICATION
   if (pathname === '/api/v1/auth/login' && req.method === 'POST') {
     if (res.setHeader) {
