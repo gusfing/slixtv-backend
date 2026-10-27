@@ -4534,6 +4534,21 @@
       "usedByProfiles": [
         "glo"
       ]
+    },
+    {
+      "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+      "name": "Stream4k",
+      "url": "http://stream4k.me",
+      "portalCode": "S4KPRO",
+      "isActive": true,
+      "ownerId": "d937da3c-9ddd-47e3-9409-90e12349f251",
+      "createdById": "d937da3c-9ddd-47e3-9409-90e12349f251",
+      "createdAt": "2026-10-13T23:45:17.646Z",
+      "updatedAt": "2026-10-13T23:45:17.646Z",
+      "deletedAt": null,
+      "usedByProfiles": [
+        "s4k"
+      ]
     }
   ],
   "dealers": [],

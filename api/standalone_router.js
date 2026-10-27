@@ -68,11 +68,15 @@ function handleStandaloneRequest(req, res) {
   const searchParams = urlObj.searchParams;
 
   const sendJson = (statusCode, data) => {
-    if (res.writeHead) {
+    if (typeof res.status === 'function' && typeof res.json === 'function') {
+      res.status(statusCode).json(data);
+    } else if (res.writeHead) {
       res.writeHead(statusCode, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify(data));
     } else {
-      res.status(statusCode).json(data);
+      res.statusCode = statusCode;
+      if (res.setHeader) res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify(data));
     }
   };
 
@@ -370,8 +374,158 @@ function handleStandaloneRequest(req, res) {
   }
 
   // 5. PROFILES & PORTALS
-  if (pathname === '/api/v1/hierarchy/profiles') {
+  // 5A. PORTALS (LIST & CREATE)
+  if (pathname === '/api/v1/hierarchy/portals' || pathname === '/api/v1/admin/portals' || pathname === '/api/v1/admin/portals/active') {
+    if (req.method === 'POST') {
+      const body = req.body || {};
+      const newPortal = {
+        id: (body.id) || (require('crypto').randomUUID ? require('crypto').randomUUID() : ('portal-' + Date.now())),
+        name: body.name || 'New Portal',
+        url: body.url || '',
+        portalCode: body.portalCode || Math.random().toString(36).substring(2, 9).toUpperCase(),
+        isActive: body.isActive !== false,
+        ownerId: "d937da3c-9ddd-47e3-9409-90e12349f251",
+        createdById: "d937da3c-9ddd-47e3-9409-90e12349f251",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        deletedAt: null,
+        usedByProfiles: []
+      };
+      db.portals.push(newPortal);
+      saveDb();
+      sendJson(200, { success: true, data: newPortal });
+      return true;
+    }
+
+    sendJson(200, {
+      success: true,
+      data: db.portals || [],
+      pagination: { page: 1, limit: 50, total: (db.portals || []).length, totalPages: 1 }
+    });
+    return true;
+  }
+
+  // 5B. PORTALS BY ID (GET, UPDATE, TOGGLE, DELETE, REPLACEMENTS)
+  if (pathname.startsWith('/api/v1/hierarchy/portals/') || pathname.startsWith('/api/v1/admin/portals/')) {
+    const portalPrefix = pathname.startsWith('/api/v1/hierarchy/portals/') 
+      ? '/api/v1/hierarchy/portals/' 
+      : '/api/v1/admin/portals/';
+    const sub = pathname.slice(portalPrefix.length);
+    const parts = sub.split('/');
+    const portalId = parts[0];
+    const subAction = parts[1];
+
+    let portal = (db.portals || []).find(p => p.id === portalId);
+    if (!portal) {
+      for (const prof of (db.profiles || [])) {
+        if (prof.portals) {
+          const found = prof.portals.find(p => p.id === portalId);
+          if (found) {
+            portal = {
+              id: found.id,
+              name: found.name || 'Portal',
+              url: found.url || '',
+              portalCode: found.portalCode || '',
+              isActive: found.isActive !== false,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+              deletedAt: null,
+              usedByProfiles: [prof.name]
+            };
+            db.portals.push(portal);
+            saveDb();
+            break;
+          }
+        }
+      }
+    }
+
+    if (subAction === 'replacements') {
+      if (req.method === 'GET') {
+        sendJson(200, { success: true, data: [] });
+        return true;
+      }
+      if (req.method === 'POST') {
+        sendJson(200, { success: true, data: req.body || {} });
+        return true;
+      }
+      sendJson(200, { success: true });
+      return true;
+    }
+
+    if (subAction === 'toggle-status' && (req.method === 'PATCH' || req.method === 'POST')) {
+      if (portal) {
+        portal.isActive = !portal.isActive;
+        portal.updatedAt = new Date().toISOString();
+        saveDb();
+        sendJson(200, { success: true, data: portal });
+      } else {
+        sendJson(404, { success: false, message: 'Portal not found' });
+      }
+      return true;
+    }
+
+    if (req.method === 'GET') {
+      if (portal) {
+        sendJson(200, { success: true, data: portal });
+      } else {
+        sendJson(404, { success: false, message: 'Portal not found' });
+      }
+      return true;
+    }
+
+    if (req.method === 'PATCH' || req.method === 'PUT') {
+      if (portal) {
+        Object.assign(portal, req.body || {});
+        portal.updatedAt = new Date().toISOString();
+        saveDb();
+        sendJson(200, { success: true, data: portal });
+      } else {
+        sendJson(404, { success: false, message: 'Portal not found' });
+      }
+      return true;
+    }
+
+    if (req.method === 'DELETE') {
+      db.portals = (db.portals || []).filter(p => p.id !== portalId);
+      saveDb();
+      sendJson(200, { success: true, message: 'Portal deleted successfully' });
+      return true;
+    }
+  }
+
+  // 5C. PROFILES (LIST & CREATE)
+  if (pathname === '/api/v1/hierarchy/profiles' || pathname === '/api/v1/reseller/profiles' || pathname === '/api/v1/admin/profiles' || pathname === '/api/v1/admin/profiles/active') {
     const list = (db.hierarchyProfiles && db.hierarchyProfiles.length) ? db.hierarchyProfiles : (db.profiles || []);
+    
+    if (req.method === 'POST') {
+      const body = req.body || {};
+      const newProfile = {
+        id: (body.id) || (require('crypto').randomUUID ? require('crypto').randomUUID() : ('prof-' + Date.now())),
+        name: body.name || 'New Profile',
+        description: body.description || '',
+        isActive: body.isActive !== false,
+        source: 'own',
+        ownerId: "d937da3c-9ddd-47e3-9409-90e12349f251",
+        createdById: "d937da3c-9ddd-47e3-9409-90e12349f251",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        deletedAt: null,
+        portals: body.portals || [],
+        profilePortals: (body.portals || []).map((portal, idx) => ({
+          id: `pp-${Date.now()}-${idx}`,
+          portalId: portal.id,
+          isDefault: portal.isDefault || false,
+          portal: portal
+        }))
+      };
+      (db.profiles || []).push(newProfile);
+      if (db.hierarchyProfiles) db.hierarchyProfiles.push(newProfile);
+      saveDb();
+      sendJson(200, { success: true, data: newProfile });
+      return true;
+    }
+
     for (const p of list) {
       if (!Array.isArray(p.profilePortals)) {
         p.profilePortals = (p.portals || []).map((portal, idx) => ({
@@ -383,29 +537,121 @@ function handleStandaloneRequest(req, res) {
         }));
       }
     }
-    sendJson(200, { success: true, data: list });
+    sendJson(200, {
+      success: true,
+      data: list,
+      pagination: { page: 1, limit: 50, total: list.length, totalPages: 1 }
+    });
     return true;
   }
 
-  if (pathname === '/api/v1/reseller/profiles') {
-    const list = db.profiles || [];
-    for (const p of list) {
-      if (!Array.isArray(p.profilePortals)) {
-        p.profilePortals = (p.portals || []).map((portal, idx) => ({
-          id: `pp-${p.id}-${idx}`,
-          profileId: p.id,
-          portalId: portal.id,
-          isDefault: portal.isDefault || false,
-          portal: portal
-        }));
-      }
+  // 5D. PROFILES BY ID (GET, UPDATE, TOGGLE, DELETE)
+  if (pathname.startsWith('/api/v1/hierarchy/profiles/') || pathname.startsWith('/api/v1/admin/profiles/')) {
+    const profPrefix = pathname.startsWith('/api/v1/hierarchy/profiles/') 
+      ? '/api/v1/hierarchy/profiles/' 
+      : '/api/v1/admin/profiles/';
+    const sub = pathname.slice(profPrefix.length);
+    const parts = sub.split('/');
+    const profileId = parts[0];
+    const subAction = parts[1];
+
+    const profile = (db.profiles || []).find(p => p.id === profileId) || 
+                    (db.hierarchyProfiles || []).find(p => p.id === profileId);
+
+    if (profile && !Array.isArray(profile.profilePortals)) {
+      profile.profilePortals = (profile.portals || []).map((portal, idx) => ({
+        id: `pp-${profile.id}-${idx}`,
+        profileId: profile.id,
+        portalId: portal.id,
+        isDefault: portal.isDefault || false,
+        portal: portal
+      }));
     }
-    sendJson(200, { success: true, data: list });
+
+    if (subAction === 'toggle-status' && (req.method === 'PATCH' || req.method === 'POST')) {
+      if (profile) {
+        profile.isActive = !profile.isActive;
+        profile.updatedAt = new Date().toISOString();
+        saveDb();
+        sendJson(200, { success: true, data: profile });
+      } else {
+        sendJson(404, { success: false, message: 'Profile not found' });
+      }
+      return true;
+    }
+
+    if (req.method === 'GET') {
+      if (profile) {
+        sendJson(200, { success: true, data: profile });
+      } else {
+        sendJson(404, { success: false, message: 'Profile not found' });
+      }
+      return true;
+    }
+
+    if (req.method === 'PATCH' || req.method === 'PUT') {
+      if (profile) {
+        Object.assign(profile, req.body || {});
+        if (req.body && req.body.portals) {
+          profile.profilePortals = req.body.portals.map((portal, idx) => ({
+            id: `pp-${profile.id}-${idx}`,
+            profileId: profile.id,
+            portalId: portal.id,
+            isDefault: portal.isDefault || false,
+            portal: portal
+          }));
+        }
+        profile.updatedAt = new Date().toISOString();
+        saveDb();
+        sendJson(200, { success: true, data: profile });
+      } else {
+        sendJson(404, { success: false, message: 'Profile not found' });
+      }
+      return true;
+    }
+
+    if (req.method === 'DELETE') {
+      db.profiles = (db.profiles || []).filter(p => p.id !== profileId);
+      if (db.hierarchyProfiles) {
+        db.hierarchyProfiles = db.hierarchyProfiles.filter(p => p.id !== profileId);
+      }
+      saveDb();
+      sendJson(200, { success: true, message: 'Profile deleted successfully' });
+      return true;
+    }
+  }
+
+  // 5E. PORTAL MONITOR & PORTAL ISSUES
+  if (pathname.startsWith('/api/v1/admin/portal-monitor')) {
+    if (pathname.includes('/stats')) {
+      sendJson(200, {
+        success: true,
+        data: {
+          total: (db.portals || []).length,
+          online: (db.portals || []).filter(p => p.isActive).length,
+          offline: 0,
+          degraded: 0
+        }
+      });
+      return true;
+    }
+    if (pathname.includes('/alert-settings')) {
+      sendJson(200, {
+        success: true,
+        data: { emailAlerts: false, telegramAlerts: false }
+      });
+      return true;
+    }
+    sendJson(200, { success: true, data: db.portals || [] });
     return true;
   }
 
-  if (pathname === '/api/v1/hierarchy/portals') {
-    sendJson(200, { success: true, data: db.portals });
+  if (pathname.startsWith('/api/v1/admin/portal-issues')) {
+    if (pathname.includes('/unread-count')) {
+      sendJson(200, { success: true, data: { count: 0 } });
+      return true;
+    }
+    sendJson(200, { success: true, data: db.portalIssueReports || [] });
     return true;
   }
 
