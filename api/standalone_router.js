@@ -734,7 +734,13 @@ function handleStandaloneRequest(req, res) {
         codes: {
           unused,
           inUse,
+          withPartners: 0,
           total
+        },
+        requests: {
+          myOpen: 0,
+          incoming: 0,
+          total: 0
         }
       }
     });
@@ -743,17 +749,38 @@ function handleStandaloneRequest(req, res) {
 
   if (pathname === '/api/v1/partner/assistant/lookup') {
     const q = (searchParams.get('q') || '').toLowerCase().trim();
-    const results = db.codes.filter(c => 
-      (c.code && c.code.toLowerCase().includes(q)) ||
-      (c.customerName && c.customerName.toLowerCase().includes(q)) ||
-      (c.customerPhone && c.customerPhone.includes(q))
-    ).slice(0, 10);
-    sendJson(200, { success: true, data: results });
+    const found = db.codes.find(c => 
+      (c.code && c.code.toLowerCase() === q) ||
+      (c.macAddress && c.macAddress.toLowerCase() === q) ||
+      (c.code && c.code.toLowerCase().includes(q))
+    );
+    if (found) {
+      sendJson(200, { success: true, data: found });
+    } else {
+      sendJson(404, { success: false, message: "No code in your network matches that." });
+    }
     return true;
   }
 
   if (pathname === '/api/v1/partner/assistant/expiring') {
-    sendJson(200, { success: true, data: [] });
+    const days = parseInt(searchParams.get('days') || '30', 10);
+    const now = Date.now();
+    const threshold = now + days * 24 * 60 * 60 * 1000;
+    const expiring = db.codes.filter(c => {
+      if (!c.expiresAt) return false;
+      const t = new Date(c.expiresAt).getTime();
+      return t > now && t <= threshold;
+    }).map(c => ({
+      ...c,
+      daysLeft: Math.max(1, Math.round((new Date(c.expiresAt).getTime() - now) / (24 * 60 * 60 * 1000)))
+    }));
+    sendJson(200, {
+      success: true,
+      data: {
+        total: expiring.length,
+        items: expiring.slice(0, 20)
+      }
+    });
     return true;
   }
 
@@ -763,11 +790,27 @@ function handleStandaloneRequest(req, res) {
   }
 
   if (pathname === '/api/v1/partner/requests/badge') {
-    sendJson(200, { success: true, data: { count: 0 } });
+    sendJson(200, {
+      success: true,
+      data: {
+        mine: 0,
+        incoming: 0,
+        count: 0
+      }
+    });
     return true;
   }
 
-  if (pathname === '/api/v1/partner/requests' || pathname === '/api/v1/announcements/web') {
+  if (pathname === '/api/v1/partner/requests') {
+    sendJson(200, {
+      success: true,
+      data: [],
+      meta: { page: 1, limit: 20, total: 0 }
+    });
+    return true;
+  }
+
+  if (pathname === '/api/v1/announcements/web') {
     sendJson(200, { success: true, data: [] });
     return true;
   }
