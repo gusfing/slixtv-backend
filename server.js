@@ -1,10 +1,9 @@
 const http = require('http');
-const https = require('https');
 const fs = require('fs');
 const path = require('path');
+const { handleStandaloneRequest } = require('./api/standalone_router');
 
 const PORT = process.env.PORT || 4000;
-const TARGET_HOST = process.env.TARGET_HOST || 'cast4k.cc';
 
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -22,54 +21,33 @@ const MIME_TYPES = {
   '.ttf': 'font/ttf'
 };
 
-const server = http.createServer((req, res) => {
+const server = http.createServer(async (req, res) => {
   const reqUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   const pathname = decodeURIComponent(reqUrl.pathname);
 
-  // 1. Proxy API requests to backend
+  // 1. Standalone SlixTV API (Zero external calls to Cast4K)
   if (pathname.startsWith('/api/')) {
-    console.log(`[PROXY] ${req.method} ${pathname}`);
+    console.log(`[SLIXTV API] ${req.method} ${pathname}`);
     
-    const headers = { ...req.headers, host: TARGET_HOST };
-    headers['accept-encoding'] = 'identity';
-
-    const proxyReq = https.request({
-      hostname: TARGET_HOST,
-      port: 443,
-      path: req.url,
-      method: req.method,
-      headers: headers
-    }, (proxyRes) => {
-      if (pathname.includes('sidebar-colors')) {
-        const chunks = [];
-        proxyRes.on('data', chunk => chunks.push(chunk));
-        proxyRes.on('end', () => {
-          let body = Buffer.concat(chunks).toString('utf8');
-          body = body.replace(/#ff6512/gi, '#1F80E0');
-          body = body.replace(/#fa8c16/gi, '#1F80E0');
-          body = body.replace(/#ff9900/gi, '#1F80E0');
-          body = body.replace(/cast4k/gi, 'slixtv');
-
-          const h = { ...proxyRes.headers };
-          delete h['content-length'];
-          h['content-length'] = Buffer.byteLength(body);
-          res.writeHead(proxyRes.statusCode, h);
-          res.end(body);
-        });
-        return;
+    // Buffer body for POST/PUT/PATCH
+    if (['POST', 'PUT', 'PATCH'].includes(req.method)) {
+      const buffers = [];
+      for await (const chunk of req) {
+        buffers.push(chunk);
       }
+      const data = Buffer.concat(buffers).toString();
+      try {
+        req.body = JSON.parse(data);
+      } catch (e) {
+        req.body = data;
+      }
+    }
 
-      res.writeHead(proxyRes.statusCode, proxyRes.headers);
-      proxyRes.pipe(res);
-    });
-
-    proxyReq.on('error', (err) => {
-      console.error(`[PROXY ERROR] ${err.message}`);
-      res.writeHead(502, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'Proxy Gateway Error', message: err.message }));
-    });
-
-    req.pipe(proxyReq);
+    const handled = handleStandaloneRequest(req, res);
+    if (!handled) {
+      res.writeHead(404, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: false, message: 'Endpoint not found on SlixTV' }));
+    }
     return;
   }
 
@@ -111,9 +89,10 @@ const server = http.createServer((req, res) => {
 
 server.listen(PORT, () => {
   console.log(`=======================================================`);
-  console.log(` SlixTV Dashboard is running locally!`);
-  console.log(` Local URL:   http://localhost:${PORT}`);
-  console.log(` Dashboard:   http://localhost:${PORT}/dashboard`);
-  console.log(` API Proxy:   https://${TARGET_HOST}/api/`);
+  console.log(` SlixTV Standalone Server is running!`);
+  console.log(` Local URL:    http://localhost:${PORT}`);
+  console.log(` Dashboard:    http://localhost:${PORT}/dashboard`);
+  console.log(` Status:       100% Autonomous (Zero Cast4K Connection)`);
+  console.log(` Codes Active: 200 Activation Codes Ready`);
   console.log(`=======================================================`);
 });

@@ -30,3 +30,4 @@ APK_ANALYSIS_SUMMARY.md
 check_connections.js
 clean_last_refs.js
 find_snippet.js
+build_db.js

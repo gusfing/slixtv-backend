@@ -1,89 +1,26 @@
-const https = require('https');
-
-const TARGET_HOST = 'cast4k.cc';
+const { handleStandaloneRequest } = require('./standalone_router');
 
 module.exports = async (req, res) => {
-  // 1. Enable CORS for all incoming requests (App, Web, External)
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Authorization, X-Api-Key, Accept, Origin');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-
-  if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
+  // If request has a body stream, buffer it for handlers
+  if (['POST', 'PUT', 'PATCH'].includes(req.method) && !req.body) {
+    const buffers = [];
+    for await (const chunk of req) {
+      buffers.push(chunk);
+    }
+    const data = Buffer.concat(buffers).toString();
+    try {
+      req.body = JSON.parse(data);
+    } catch (e) {
+      req.body = data;
+    }
   }
 
-  // 2. Clean Vercel internal query parameters ('slug', 'match') from path
-  const urlObj = new URL(req.url, 'http://localhost');
-  urlObj.searchParams.delete('slug');
-  urlObj.searchParams.delete('match');
-  const targetPath = urlObj.pathname + (urlObj.searchParams.toString() ? '?' + urlObj.searchParams.toString() : '');
-
-  // 3. Prepare headers for proxying
-  const forwardedHeaders = { ...req.headers };
-  delete forwardedHeaders.host;
-  forwardedHeaders['host'] = TARGET_HOST;
-  forwardedHeaders['accept-encoding'] = 'identity'; // Avoid brotli/gzip double compression issues
-
-  const options = {
-    hostname: TARGET_HOST,
-    port: 443,
-    path: targetPath,
-    method: req.method,
-    headers: forwardedHeaders,
-    timeout: 30000
-  };
-
-  const proxyReq = https.request(options, (proxyRes) => {
-    // If endpoint is sidebar-colors, intercept and force Hotstar theme colors
-    if (targetPath.includes('sidebar-colors')) {
-      const chunks = [];
-      proxyRes.on('data', chunk => chunks.push(chunk));
-      proxyRes.on('end', () => {
-        let body = Buffer.concat(chunks).toString('utf8');
-        body = body.replace(/#ff6512/gi, '#1F80E0');
-        body = body.replace(/#fa8c16/gi, '#1F80E0');
-        body = body.replace(/#ff9900/gi, '#1F80E0');
-        body = body.replace(/cast4k/gi, 'slixtv');
-        
-        res.status(proxyRes.statusCode);
-        for (const [key, value] of Object.entries(proxyRes.headers)) {
-          if (!['transfer-encoding', 'content-length'].includes(key.toLowerCase())) {
-            res.setHeader(key, value);
-          }
-        }
-        res.setHeader('Content-Length', Buffer.byteLength(body));
-        res.end(body);
-      });
-      return;
-    }
-
-    res.status(proxyRes.statusCode);
-    for (const [key, value] of Object.entries(proxyRes.headers)) {
-      if (key.toLowerCase() !== 'transfer-encoding') {
-        res.setHeader(key, value);
-      }
-    }
-    proxyRes.pipe(res);
-  });
-
-  proxyReq.on('error', (err) => {
-    console.error('[Vercel API Proxy Error]:', err.message);
-    res.status(502).json({
-      error: 'SlixTV Proxy Gateway Error',
-      message: err.message
+  // Handle request autonomously with SlixTV database
+  const handled = handleStandaloneRequest(req, res);
+  if (!handled) {
+    res.status(404).json({
+      success: false,
+      message: "Not found on SlixTV server"
     });
-  });
-
-  // Forward request body if present
-  if (req.body) {
-    if (typeof req.body === 'object') {
-      proxyReq.write(JSON.stringify(req.body));
-    } else {
-      proxyReq.write(req.body);
-    }
   }
-
-  req.pipe(proxyReq);
 };
