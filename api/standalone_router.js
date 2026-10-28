@@ -815,7 +815,7 @@ function handleStandaloneRequest(req, res) {
     sendJson(200, {
       success: true,
       data: {
-        enabled: true,
+        enabled: false,
         credits: (db.credits && db.credits.balance) || 0,
         codes: {
           unused,
