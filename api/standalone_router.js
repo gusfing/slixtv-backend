@@ -82,21 +82,47 @@ function handleStandaloneRequest(req, res) {
 
   // 0. SLIXTV APP INTEGRATION (PROFILE LOADER & DEVICE VERIFICATION)
   if (pathname === '/api.php' || pathname === '/api/api.php' || pathname.endsWith('/api.php')) {
-    const profileName = (searchParams.get('profile') || '').toLowerCase().trim();
-    const prof = (db.profiles || []).find(p => (p.name || '').toLowerCase() === profileName) ||
-                 (db.hierarchyProfiles || []).find(p => (p.name || '').toLowerCase() === profileName);
+    const rawParam = searchParams.get('profile') || searchParams.get('p') || '';
+    const profileName = rawParam.toLowerCase().trim();
+
+    let prof = null;
+    if (profileName) {
+      prof = (db.profiles || []).find(p => (p.name || '').toLowerCase() === profileName || p.id === profileName) ||
+             (db.hierarchyProfiles || []).find(p => (p.name || '').toLowerCase() === profileName || p.id === profileName);
+      
+      if (!prof) {
+        prof = (db.profiles || []).find(p => (p.name || '').toLowerCase().includes(profileName)) ||
+               (db.hierarchyProfiles || []).find(p => (p.name || '').toLowerCase().includes(profileName));
+      }
+    }
+
+    if (!prof && (db.profiles || []).length > 0) {
+      prof = db.profiles[0];
+    }
 
     if (prof) {
-      const rawPortals = (prof.portals && prof.portals.length) ? prof.portals : (db.portals || []);
+      let rawPortals = (prof.portals && prof.portals.length) ? prof.portals : [];
+      if (!rawPortals.length && Array.isArray(prof.profilePortals)) {
+        rawPortals = prof.profilePortals.map(pp => ({
+          id: pp.portalId || (pp.portal && pp.portal.id),
+          name: (pp.portal && pp.portal.name) || pp.name,
+          url: (pp.portal && pp.portal.url) || pp.url,
+          portalCode: (pp.portal && pp.portal.portalCode) || pp.portalCode,
+          isDefault: pp.isDefault
+        }));
+      }
+      if (!rawPortals.length) rawPortals = db.portals || [];
+
       const result = rawPortals.map(p => {
-        const livePortal = (db.portals || []).find(dp => dp.id === p.id || (dp.name && p.name && dp.name.toLowerCase() === p.name.toLowerCase()));
+        const portalId = p.id || p.portalId;
+        const livePortal = (db.portals || []).find(dp => (portalId && dp.id === portalId) || (dp.name && p.name && dp.name.toLowerCase() === p.name.toLowerCase()));
         let effectiveUrl = (livePortal && livePortal.url) ? livePortal.url : (p.url || 'http://play.suntv.biz');
         // Fix legacy dead URLs
         if (effectiveUrl.includes('stream4k.me')) effectiveUrl = 'https://tv.stream4k.ac';
         if (effectiveUrl.includes('glotv.me')) effectiveUrl = 'http://play.suntv.biz';
         return {
-          name: p.name || (livePortal && livePortal.name) || prof.name,
-          code: p.portalCode || (livePortal && livePortal.portalCode) || p.code || 'SLIXTV',
+          name: (livePortal && livePortal.name) || p.name || prof.name,
+          code: (livePortal && livePortal.portalCode) || p.portalCode || p.code || 'SLIXTV',
           url: effectiveUrl,
           is_default: p.isDefault !== false
         };
@@ -105,7 +131,7 @@ function handleStandaloneRequest(req, res) {
       return true;
     }
 
-    const fallback = (db.portals || []).map(p => {
+    const fallback = (db.portals || []).filter(p => p.isActive !== false).map(p => {
       let url = p.url;
       if (url.includes('stream4k.me')) url = 'https://tv.stream4k.ac';
       if (url.includes('glotv.me')) url = 'http://play.suntv.biz';
@@ -113,7 +139,7 @@ function handleStandaloneRequest(req, res) {
         name: p.name,
         code: p.portalCode || 'SLIXTV',
         url: url,
-        is_default: p.isActive !== false
+        is_default: true
       };
     });
     sendJson(200, fallback);
@@ -460,14 +486,86 @@ function handleStandaloneRequest(req, res) {
   }
 
   // 5. PROFILES & PORTALS
+  // Helper to ensure profile and portal structures are completely synced and compliant with dashboard UI
+  function syncProfilePortals(prof) {
+    if (!prof) return;
+    prof.source = 'own'; // Must be 'own' so reseller can edit and delete any profile
+    prof.isActive = prof.isActive !== false;
+
+    let sourcePortals = [];
+    if (Array.isArray(prof.portals) && prof.portals.length) {
+      sourcePortals = prof.portals;
+    } else if (Array.isArray(prof.profilePortals) && prof.profilePortals.length) {
+      sourcePortals = prof.profilePortals.map(pp => ({
+        portalId: pp.portalId || (pp.portal && pp.portal.id),
+        id: pp.portalId || (pp.portal && pp.portal.id),
+        name: (pp.portal && pp.portal.name) || pp.name,
+        url: (pp.portal && pp.portal.url) || pp.url,
+        portalCode: (pp.portal && pp.portal.portalCode) || pp.portalCode,
+        isDefault: pp.isDefault
+      }));
+    }
+
+    const cleanPortals = [];
+    const cleanProfilePortals = [];
+
+    sourcePortals.forEach((item, idx) => {
+      const portalId = item.portalId || item.id;
+      if (!portalId) return;
+
+      const live = (db.portals || []).find(p => p.id === portalId) ||
+                   (db.portals || []).find(p => p.name && item.name && p.name.toLowerCase() === item.name.toLowerCase()) ||
+                   {};
+
+      const isDefault = item.isDefault !== undefined ? item.isDefault : (idx === 0);
+      let portalUrl = live.url || item.url || '';
+      if (portalUrl.includes('glotv.me')) portalUrl = 'http://play.suntv.biz';
+      if (portalUrl.includes('stream4k.me')) portalUrl = 'https://tv.stream4k.ac';
+
+      const pObj = {
+        id: portalId,
+        name: live.name || item.name || 'Portal',
+        url: portalUrl,
+        portalCode: live.portalCode || item.portalCode || item.code || 'SLIXTV',
+        isActive: live.isActive !== false,
+        isDefault: isDefault
+      };
+
+      cleanPortals.push(pObj);
+      cleanProfilePortals.push({
+        id: `pp-${prof.id}-${portalId}`,
+        profileId: prof.id,
+        portalId: portalId,
+        isDefault: isDefault,
+        portal: {
+          id: portalId,
+          name: pObj.name,
+          url: pObj.url,
+          portalCode: pObj.portalCode,
+          isActive: pObj.isActive
+        }
+      });
+    });
+
+    prof.portals = cleanPortals;
+    prof.profilePortals = cleanProfilePortals;
+    const def = cleanPortals.find(p => p.isDefault) || cleanPortals[0];
+    prof.defaultPortal = def ? { id: def.id, name: def.name } : null;
+  }
+
+  function syncAllProfiles() {
+    (db.profiles || []).forEach(syncProfilePortals);
+    (db.hierarchyProfiles || []).forEach(syncProfilePortals);
+  }
+
   // 5A. PORTALS (LIST & CREATE)
   if (pathname === '/api/v1/hierarchy/portals' || pathname === '/api/v1/admin/portals' || pathname === '/api/v1/admin/portals/active') {
     if (req.method === 'POST') {
       const body = req.body || {};
       const newPortal = {
         id: (body.id) || (require('crypto').randomUUID ? require('crypto').randomUUID() : ('portal-' + Date.now())),
-        name: body.name || 'New Portal',
-        url: body.url || '',
+        name: (body.name || 'New Portal').trim(),
+        url: (body.url || '').trim(),
         portalCode: body.portalCode || Math.random().toString(36).substring(2, 9).toUpperCase(),
         isActive: body.isActive !== false,
         ownerId: "d937da3c-9ddd-47e3-9409-90e12349f251",
@@ -478,6 +576,7 @@ function handleStandaloneRequest(req, res) {
         usedByProfiles: []
       };
       db.portals.push(newPortal);
+      syncAllProfiles();
       saveDb();
       sendJson(200, { success: true, data: newPortal });
       return true;
@@ -543,6 +642,7 @@ function handleStandaloneRequest(req, res) {
       if (portal) {
         portal.isActive = !portal.isActive;
         portal.updatedAt = new Date().toISOString();
+        syncAllProfiles();
         saveDb();
         sendJson(200, { success: true, data: portal });
       } else {
@@ -564,6 +664,7 @@ function handleStandaloneRequest(req, res) {
       if (portal) {
         Object.assign(portal, req.body || {});
         portal.updatedAt = new Date().toISOString();
+        syncAllProfiles();
         saveDb();
         sendJson(200, { success: true, data: portal });
       } else {
@@ -574,6 +675,7 @@ function handleStandaloneRequest(req, res) {
 
     if (req.method === 'DELETE') {
       db.portals = (db.portals || []).filter(p => p.id !== portalId);
+      syncAllProfiles();
       saveDb();
       sendJson(200, { success: true, message: 'Portal deleted successfully' });
       return true;
@@ -582,13 +684,15 @@ function handleStandaloneRequest(req, res) {
 
   // 5C. PROFILES (LIST & CREATE)
   if (pathname === '/api/v1/hierarchy/profiles' || pathname === '/api/v1/reseller/profiles' || pathname === '/api/v1/admin/profiles' || pathname === '/api/v1/admin/profiles/active') {
+    syncAllProfiles();
     const list = (db.hierarchyProfiles && db.hierarchyProfiles.length) ? db.hierarchyProfiles : (db.profiles || []);
     
     if (req.method === 'POST') {
       const body = req.body || {};
+      const newId = (body.id) || (require('crypto').randomUUID ? require('crypto').randomUUID() : ('prof-' + Date.now()));
       const newProfile = {
-        id: (body.id) || (require('crypto').randomUUID ? require('crypto').randomUUID() : ('prof-' + Date.now())),
-        name: body.name || 'New Profile',
+        id: newId,
+        name: (body.name || 'New Profile').trim(),
         description: body.description || '',
         isActive: body.isActive !== false,
         source: 'own',
@@ -598,31 +702,20 @@ function handleStandaloneRequest(req, res) {
         updatedAt: new Date().toISOString(),
         deletedAt: null,
         portals: body.portals || [],
-        profilePortals: (body.portals || []).map((portal, idx) => ({
-          id: `pp-${Date.now()}-${idx}`,
-          portalId: portal.id,
-          isDefault: portal.isDefault || false,
-          portal: portal
-        }))
+        profilePortals: []
       };
-      (db.profiles || []).push(newProfile);
-      if (db.hierarchyProfiles) db.hierarchyProfiles.push(newProfile);
+      syncProfilePortals(newProfile);
+      
+      // Update both profiles and hierarchyProfiles
+      if (!db.profiles) db.profiles = [];
+      if (!db.hierarchyProfiles) db.hierarchyProfiles = [];
+      db.profiles.push(newProfile);
+      db.hierarchyProfiles.push(newProfile);
       saveDb();
       sendJson(200, { success: true, data: newProfile });
       return true;
     }
 
-    for (const p of list) {
-      if (!Array.isArray(p.profilePortals)) {
-        p.profilePortals = (p.portals || []).map((portal, idx) => ({
-          id: `pp-${p.id}-${idx}`,
-          profileId: p.id,
-          portalId: portal.id,
-          isDefault: portal.isDefault || false,
-          portal: portal
-        }));
-      }
-    }
     sendJson(200, {
       success: true,
       data: list,
@@ -641,23 +734,19 @@ function handleStandaloneRequest(req, res) {
     const profileId = parts[0];
     const subAction = parts[1];
 
-    const profile = (db.profiles || []).find(p => p.id === profileId) || 
-                    (db.hierarchyProfiles || []).find(p => p.id === profileId);
+    let profile = (db.profiles || []).find(p => p.id === profileId) || 
+                  (db.hierarchyProfiles || []).find(p => p.id === profileId);
 
-    if (profile && !Array.isArray(profile.profilePortals)) {
-      profile.profilePortals = (profile.portals || []).map((portal, idx) => ({
-        id: `pp-${profile.id}-${idx}`,
-        profileId: profile.id,
-        portalId: portal.id,
-        isDefault: portal.isDefault || false,
-        portal: portal
-      }));
+    if (profile) {
+      syncProfilePortals(profile);
     }
 
     if (subAction === 'toggle-status' && (req.method === 'PATCH' || req.method === 'POST')) {
       if (profile) {
         profile.isActive = !profile.isActive;
         profile.updatedAt = new Date().toISOString();
+        const other = (db.hierarchyProfiles || []).find(p => p.id === profileId);
+        if (other && other !== profile) Object.assign(other, profile);
         saveDb();
         sendJson(200, { success: true, data: profile });
       } else {
@@ -677,17 +766,32 @@ function handleStandaloneRequest(req, res) {
 
     if (req.method === 'PATCH' || req.method === 'PUT') {
       if (profile) {
-        Object.assign(profile, req.body || {});
-        if (req.body && req.body.portals) {
-          profile.profilePortals = req.body.portals.map((portal, idx) => ({
-            id: `pp-${profile.id}-${idx}`,
-            profileId: profile.id,
-            portalId: portal.id,
-            isDefault: portal.isDefault || false,
-            portal: portal
-          }));
-        }
+        const body = req.body || {};
+        const oldName = profile.name;
+        if (body.name !== undefined) profile.name = body.name.trim();
+        if (body.description !== undefined) profile.description = body.description;
+        if (body.isActive !== undefined) profile.isActive = body.isActive;
+        if (body.portals !== undefined) profile.portals = body.portals;
+
+        syncProfilePortals(profile);
         profile.updatedAt = new Date().toISOString();
+
+        // If profile name changed, update codes that used this profile
+        if (oldName && profile.name && oldName !== profile.name) {
+          (db.codes || []).forEach(c => {
+            if (c.profile && (c.profile.id === profile.id || c.profile.name === oldName)) {
+              c.profile.name = profile.name;
+              c.profile.id = profile.id;
+            }
+          });
+        }
+
+        // Keep db.profiles and db.hierarchyProfiles in sync
+        const matchH = (db.hierarchyProfiles || []).find(p => p.id === profileId);
+        if (matchH && matchH !== profile) Object.assign(matchH, profile);
+        const matchP = (db.profiles || []).find(p => p.id === profileId);
+        if (matchP && matchP !== profile) Object.assign(matchP, profile);
+
         saveDb();
         sendJson(200, { success: true, data: profile });
       } else {
@@ -936,6 +1040,35 @@ function handleStandaloneRequest(req, res) {
         latestVersion: "2.6.5",
         downloadUrl: "https://slixtv-backend.vercel.app/SlixTV.apk",
         message: "SlixTV is running the latest version"
+      }
+    });
+    return true;
+  }
+
+  // Common user/partner endpoints queried by dashboard
+  if (pathname === '/api/v1/users/me/profiles') {
+    sendJson(200, { success: true, data: db.profiles || [] });
+    return true;
+  }
+
+  if (pathname === '/api/v1/users/me/avatars') {
+    sendJson(200, { success: true, data: [] });
+    return true;
+  }
+
+  if (pathname === '/api/v1/users/me/profile-urls') {
+    sendJson(200, { success: true, data: [] });
+    return true;
+  }
+
+  if (pathname === '/api/v1/partner/credits/purchase-config') {
+    sendJson(200, {
+      success: true,
+      data: {
+        packages: [],
+        exchangeRates: {},
+        minPurchase: 10,
+        currency: "USD"
       }
     });
     return true;
