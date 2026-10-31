@@ -84,9 +84,17 @@ async function handleStandaloneRequest(req, res) {
   if (pathname === '/api/v1/test-upstream') {
     try {
       const mac = searchParams.get('mac') || '00:1E:C2:89:37:1A';
-      const r = await fetch('https://tv.stream4k.ac/stalker_portal/server/load.php?type=stb&action=handshake&token=&mac=' + encodeURIComponent(mac), {
+      const action = searchParams.get('action') || 'handshake';
+      const token = searchParams.get('token') || '';
+      let upstreamUrl = `https://tv.stream4k.ac/stalker_portal/server/load.php?type=stb&action=${action}&token=${encodeURIComponent(token)}&mac=${encodeURIComponent(mac)}`;
+      if (action === 'get_profile') {
+        upstreamUrl += '&hd=1&ver=ImageDescription%3A%202.20.02-pub-424&stb_type=MAG424&client_type=STB&image_version=220&video_out=hdmi&hw_version=1.7-BD-00&JsHttpRequest=1-xml';
+      }
+      const r = await fetch(upstreamUrl, {
         headers: {
-          'User-Agent': 'Mozilla/5.0 (QtEmbedded; U; Linux; C) AppleWebKit/533.3 (KHTML, like Gecko) MAG200 stbapp ver: 2 rev: 250 Safari/533.3'
+          'User-Agent': 'Mozilla/5.0 (QtEmbedded; U; Linux; C) AppleWebKit/533.3 (KHTML, like Gecko) MAG200 stbapp ver: 2 rev: 250 Safari/533.3',
+          'Cookie': `mac=${encodeURIComponent(mac)}`,
+          'Authorization': token ? `Bearer ${token}` : ''
         }
       });
       const txt = await r.text();
