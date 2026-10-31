@@ -113,18 +113,19 @@ function handleStandaloneRequest(req, res) {
       }
       if (!rawPortals.length) rawPortals = db.portals || [];
 
-      const result = rawPortals.map(p => {
+      const result = rawPortals.map((p, idx) => {
         const portalId = p.id || p.portalId;
         const livePortal = (db.portals || []).find(dp => (portalId && dp.id === portalId) || (dp.name && p.name && dp.name.toLowerCase() === p.name.toLowerCase()));
         let effectiveUrl = (livePortal && livePortal.url) ? livePortal.url : (p.url || 'http://play.suntv.biz');
         // Fix legacy dead URLs
         if (effectiveUrl.includes('stream4k.me')) effectiveUrl = 'https://tv.stream4k.ac';
         if (effectiveUrl.includes('glotv.me')) effectiveUrl = 'http://play.suntv.biz';
+        const isDef = p.isDefault === true || (!rawPortals.some(x => x.isDefault === true) && idx === 0);
         return {
           name: (livePortal && livePortal.name) || p.name || prof.name,
           code: (livePortal && livePortal.portalCode) || p.portalCode || p.code || 'SLIXTV',
           url: effectiveUrl,
-          is_default: p.isDefault !== false
+          is_default: isDef
         };
       });
       sendJson(200, result);
