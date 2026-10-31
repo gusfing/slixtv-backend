@@ -16,7 +16,7 @@ module.exports = async (req, res) => {
   }
 
   // Handle request autonomously with SlixTV database
-  const handled = handleStandaloneRequest(req, res);
+  const handled = await handleStandaloneRequest(req, res);
   if (!handled) {
     res.status(404).json({
       success: false,
