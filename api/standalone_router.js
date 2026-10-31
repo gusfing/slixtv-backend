@@ -80,6 +80,23 @@ function handleStandaloneRequest(req, res) {
     }
   };
 
+  // TEST UPSTREAM FROM VERCEL
+  if (pathname === '/api/v1/test-upstream') {
+    try {
+      const mac = searchParams.get('mac') || '00:1E:C2:89:37:1A';
+      const r = await fetch('https://tv.stream4k.ac/stalker_portal/server/load.php?type=stb&action=handshake&token=&mac=' + encodeURIComponent(mac), {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (QtEmbedded; U; Linux; C) AppleWebKit/533.3 (KHTML, like Gecko) MAG200 stbapp ver: 2 rev: 250 Safari/533.3'
+        }
+      });
+      const txt = await r.text();
+      sendJson(200, { status: r.status, body: txt });
+    } catch(err) {
+      sendJson(500, { error: err.message });
+    }
+    return true;
+  }
+
   // 0. SLIXTV APP INTEGRATION (PROFILE LOADER & DEVICE VERIFICATION)
   if (pathname === '/api.php' || pathname === '/api/api.php' || pathname.endsWith('/api.php')) {
     const rawParam = searchParams.get('profile') || searchParams.get('p') || '';
