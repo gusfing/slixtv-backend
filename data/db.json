@@ -4926,8 +4926,8 @@
       "isActive": true,
       "source": "own",
       "defaultPortal": {
-        "id": "b56e96c2-8152-42bc-a5e5-a0d047f4846b",
-        "name": "Glo"
+        "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+        "name": "Stream4k"
       },
       "portals": [
         {
@@ -4936,7 +4936,7 @@
           "url": "http://play.suntv.biz",
           "portalCode": "8RB0WCK",
           "isActive": true,
-          "isDefault": true
+          "isDefault": false
         },
         {
           "id": "c0388fe4-eb83-4849-b286-4225586d133a",
@@ -4944,7 +4944,7 @@
           "url": "https://tv.stream4k.ac",
           "portalCode": "S4KPRO",
           "isActive": true,
-          "isDefault": false
+          "isDefault": true
         }
       ],
       "profilePortals": [
@@ -4952,7 +4952,7 @@
           "id": "pp-profile-kun-standalone-b56e96c2-8152-42bc-a5e5-a0d047f4846b",
           "profileId": "profile-kun-standalone",
           "portalId": "b56e96c2-8152-42bc-a5e5-a0d047f4846b",
-          "isDefault": true,
+          "isDefault": false,
           "portal": {
             "id": "b56e96c2-8152-42bc-a5e5-a0d047f4846b",
             "name": "Glo",
@@ -4965,7 +4965,7 @@
           "id": "pp-profile-kun-standalone-c0388fe4-eb83-4849-b286-4225586d133a",
           "profileId": "profile-kun-standalone",
           "portalId": "c0388fe4-eb83-4849-b286-4225586d133a",
-          "isDefault": false,
+          "isDefault": true,
           "portal": {
             "id": "c0388fe4-eb83-4849-b286-4225586d133a",
             "name": "Stream4k",
