@@ -105,6 +105,55 @@ async function handleStandaloneRequest(req, res) {
     return true;
   }
 
+  // STALKER PORTAL REVERSE PROXY (Bypasses Cloudflare 429 & firewall blocks)
+  if (pathname.includes('/stalker_portal/server/load.php')) {
+    try {
+      let upstreamHost = 'https://tv.stream4k.ac';
+      if (pathname.includes('/glo') || pathname.includes('suntv')) {
+        upstreamHost = 'http://play.suntv.biz';
+      }
+
+      const queryString = urlObj.search || '';
+      const targetUrl = `${upstreamHost}/stalker_portal/server/load.php${queryString}`;
+
+      const fHeaders = {};
+      for (const [k, v] of Object.entries(req.headers || {})) {
+        const lk = k.toLowerCase();
+        if (['host', 'connection', 'content-length'].includes(lk)) continue;
+        fHeaders[k] = v;
+      }
+
+      if (!fHeaders['user-agent'] || fHeaders['user-agent'].includes('okhttp')) {
+        fHeaders['user-agent'] = 'Mozilla/5.0 (QtEmbedded; U; Linux; C) AppleWebKit/533.3 (KHTML, like Gecko) MAG200 stbapp ver: 2 rev: 250 Safari/533.3';
+      }
+
+      const upstreamRes = await fetch(targetUrl, {
+        method: req.method || 'GET',
+        headers: fHeaders,
+        body: (['POST', 'PUT', 'PATCH'].includes(req.method) && req.body) ? (typeof req.body === 'string' ? req.body : JSON.stringify(req.body)) : undefined
+      });
+
+      const responseText = await upstreamRes.text();
+      const contentType = upstreamRes.headers.get('content-type') || 'application/json';
+
+      if (typeof res.status === 'function' && typeof res.send === 'function') {
+        res.status(upstreamRes.status).set('Content-Type', contentType).send(responseText);
+      } else if (res.writeHead) {
+        res.writeHead(upstreamRes.status, { 'Content-Type': contentType });
+        res.end(responseText);
+      } else {
+        res.statusCode = upstreamRes.status;
+        if (res.setHeader) res.setHeader('Content-Type', contentType);
+        res.end(responseText);
+      }
+      return true;
+    } catch (proxyErr) {
+      console.error('[Stalker Proxy Error]:', proxyErr);
+      sendJson(502, { error: 'Failed to reach upstream IPTV server', message: proxyErr.message });
+      return true;
+    }
+  }
+
   // 0. SLIXTV APP INTEGRATION (PROFILE LOADER & DEVICE VERIFICATION)
   if (pathname === '/api.php' || pathname === '/api/api.php' || pathname.endsWith('/api.php')) {
     const rawParam = searchParams.get('profile') || searchParams.get('p') || '';
@@ -142,9 +191,13 @@ async function handleStandaloneRequest(req, res) {
         const portalId = p.id || p.portalId;
         const livePortal = (db.portals || []).find(dp => (portalId && dp.id === portalId) || (dp.name && p.name && dp.name.toLowerCase() === p.name.toLowerCase()));
         let effectiveUrl = (livePortal && livePortal.url) ? livePortal.url : (p.url || 'http://play.suntv.biz');
-        // Fix legacy dead URLs
-        if (effectiveUrl.includes('stream4k.me')) effectiveUrl = 'https://tv.stream4k.ac';
-        if (effectiveUrl.includes('glotv.me')) effectiveUrl = 'http://play.suntv.biz';
+        // Fix legacy dead URLs & route through anti-rate-limit proxy
+        if (effectiveUrl.includes('stream4k') || effectiveUrl.includes('tv.stream4k.ac')) {
+          effectiveUrl = 'https://slixtv-backend.vercel.app/portal/s4k';
+        }
+        if (effectiveUrl.includes('glotv.me') || effectiveUrl.includes('play.suntv.biz')) {
+          effectiveUrl = 'http://play.suntv.biz';
+        }
         const isDef = p.isDefault === true || (!rawPortals.some(x => x.isDefault === true) && idx === 0);
         return {
           name: (livePortal && livePortal.name) || p.name || prof.name,
@@ -159,8 +212,12 @@ async function handleStandaloneRequest(req, res) {
 
     const fallback = (db.portals || []).filter(p => p.isActive !== false).map(p => {
       let url = p.url;
-      if (url.includes('stream4k.me')) url = 'https://tv.stream4k.ac';
-      if (url.includes('glotv.me')) url = 'http://play.suntv.biz';
+      if (url.includes('stream4k') || url.includes('tv.stream4k.ac')) {
+        url = 'https://slixtv-backend.vercel.app/portal/s4k';
+      }
+      if (url.includes('glotv.me') || url.includes('play.suntv.biz')) {
+        url = 'http://play.suntv.biz';
+      }
       return {
         name: p.name,
         code: p.portalCode || 'SLIXTV',
