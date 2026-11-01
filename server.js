@@ -26,7 +26,14 @@ const server = http.createServer(async (req, res) => {
   const pathname = decodeURIComponent(reqUrl.pathname);
 
   // 1. Standalone SlixTV API (Zero external calls to Cast4K)
-  if (pathname.startsWith('/api/') || pathname.endsWith('.php') || pathname === '/api.php') {
+  const isApi = pathname.startsWith('/api/') || 
+                pathname.endsWith('.php') || 
+                pathname === '/api.php' || 
+                pathname.startsWith('/portal/') || 
+                pathname.startsWith('/stalker_portal') || 
+                pathname.includes('load.php');
+
+  if (isApi) {
     console.log(`[SLIXTV API] ${req.method} ${pathname}`);
     
     // Buffer body for POST/PUT/PATCH
@@ -43,7 +50,7 @@ const server = http.createServer(async (req, res) => {
       }
     }
 
-    const handled = handleStandaloneRequest(req, res);
+    const handled = await handleStandaloneRequest(req, res);
     if (!handled) {
       res.writeHead(404, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ success: false, message: 'Endpoint not found on SlixTV' }));

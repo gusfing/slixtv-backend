@@ -105,16 +105,49 @@ async function handleStandaloneRequest(req, res) {
     return true;
   }
 
-  // STALKER PORTAL REVERSE PROXY (Bypasses Cloudflare 429 & firewall blocks)
-  if (pathname.includes('/stalker_portal/server/load.php')) {
+  // STALKER PORTAL REVERSE PROXY (Bypasses Cloudflare 429, 404s & firewall blocks)
+  const isStalkerProxy = 
+    pathname.includes('load.php') ||
+    pathname.includes('/stalker_portal') ||
+    pathname.includes('/portal/');
+
+  if (isStalkerProxy && !pathname.includes('/api/v1/') && !pathname.endsWith('api.php') && !pathname.includes('check-device')) {
     try {
       let upstreamHost = 'https://tv.stream4k.ac';
-      if (pathname.includes('/glo') || pathname.includes('suntv')) {
+      if (pathname.includes('/glo') || pathname.includes('suntv') || searchParams.get('portal') === 'glo') {
         upstreamHost = 'http://play.suntv.biz';
       }
 
+      // If a specific portal id or code was in the URL path, e.g. /portal/xyz/...
+      const portalMatch = pathname.match(/\/portal\/([^\/]+)/);
+      if (portalMatch && portalMatch[1]) {
+        const portalKey = portalMatch[1].toLowerCase();
+        if (portalKey === 'glo' || portalKey.includes('suntv')) {
+          upstreamHost = 'http://play.suntv.biz';
+        } else if (portalKey !== 's4k') {
+          const matchedPortal = (db.portals || []).find(p => 
+            (p.id && p.id.toLowerCase() === portalKey) || 
+            (p.portalCode && p.portalCode.toLowerCase() === portalKey) ||
+            (p.name && p.name.toLowerCase() === portalKey)
+          );
+          if (matchedPortal && matchedPortal.url) {
+            try {
+              const u = new URL(matchedPortal.url);
+              upstreamHost = u.origin;
+            } catch (_) {
+              upstreamHost = matchedPortal.url;
+            }
+          }
+        }
+      }
+
+      let upstreamPath = '/stalker_portal/server/load.php';
+      if (pathname.includes('/c/') || pathname.endsWith('/c')) {
+        upstreamPath = '/stalker_portal/c/';
+      }
+
       const queryString = urlObj.search || '';
-      const targetUrl = `${upstreamHost}/stalker_portal/server/load.php${queryString}`;
+      const targetUrl = `${upstreamHost.replace(/\/+$/, '')}${upstreamPath}${queryString}`;
 
       const fHeaders = {};
       for (const [k, v] of Object.entries(req.headers || {})) {
@@ -222,11 +255,16 @@ async function handleStandaloneRequest(req, res) {
         const livePortal = (db.portals || []).find(dp => (portalId && dp.id === portalId) || (dp.name && p.name && dp.name.toLowerCase() === p.name.toLowerCase()));
         let effectiveUrl = (livePortal && livePortal.url) ? livePortal.url : (p.url || 'https://tv.stream4k.ac');
         // Fix legacy dead URLs & route through anti-rate-limit proxy
+        const reqHost = (req.headers && req.headers.host) ? req.headers.host : 'slixtv-backend.vercel.app';
+        const proto = (req.headers && req.headers['x-forwarded-proto']) || (reqHost.includes('localhost') || reqHost.includes('127.0.0.1') ? 'http' : 'https');
+        const baseUrl = `${proto}://${reqHost}`;
+
         if (effectiveUrl.includes('stream4k') || effectiveUrl.includes('tv.stream4k.ac')) {
-          effectiveUrl = 'https://slixtv-backend.vercel.app/portal/s4k';
-        }
-        if (effectiveUrl.includes('glotv.me') || effectiveUrl.includes('play.suntv.biz')) {
-          effectiveUrl = 'http://play.suntv.biz';
+          effectiveUrl = `${baseUrl}/portal/s4k`;
+        } else if (effectiveUrl.includes('glotv.me') || effectiveUrl.includes('play.suntv.biz')) {
+          effectiveUrl = `${baseUrl}/portal/glo`;
+        } else if (portalId) {
+          effectiveUrl = `${baseUrl}/portal/${encodeURIComponent(portalId)}`;
         }
         const isDef = p.isDefault === true || (!rawPortals.some(x => x.isDefault === true) && idx === 0);
         return {
