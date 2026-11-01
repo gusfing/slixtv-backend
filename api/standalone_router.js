@@ -170,13 +170,32 @@ async function handleStandaloneRequest(req, res) {
       }
     }
 
-    if (!prof && (db.profiles || []).length > 0) {
-      prof = db.profiles[0];
+    if (!prof) {
+      const s4k = (db.profiles || []).find(p => (p.name || '').toLowerCase() === 's4k') ||
+                  (db.profiles || []).find(p => (p.name || '').toLowerCase() === 'test');
+      if (profileName) {
+        prof = {
+          id: 'dyn-' + profileName,
+          name: profileName,
+          portals: (s4k && s4k.portals && s4k.portals.length) ? s4k.portals : [
+            {
+              id: "c0388fe4-eb83-4849-b286-4225586d133a",
+              name: "Stream4k",
+              url: "https://tv.stream4k.ac",
+              portalCode: "S4KPRO",
+              isActive: true,
+              isDefault: true
+            }
+          ]
+        };
+      } else {
+        prof = s4k || (db.profiles || [])[0];
+      }
     }
 
     if (prof) {
       let rawPortals = (prof.portals && prof.portals.length) ? prof.portals : [];
-      if (!rawPortals.length && Array.isArray(prof.profilePortals)) {
+      if (!rawPortals.length && Array.isArray(prof.profilePortals) && prof.profilePortals.length) {
         rawPortals = prof.profilePortals.map(pp => ({
           id: pp.portalId || (pp.portal && pp.portal.id),
           name: (pp.portal && pp.portal.name) || pp.name,
@@ -185,12 +204,23 @@ async function handleStandaloneRequest(req, res) {
           isDefault: pp.isDefault
         }));
       }
-      if (!rawPortals.length) rawPortals = db.portals || [];
+      if (!rawPortals.length) {
+        rawPortals = [
+          {
+            id: "c0388fe4-eb83-4849-b286-4225586d133a",
+            name: "Stream4k",
+            url: "https://tv.stream4k.ac",
+            portalCode: "S4KPRO",
+            isActive: true,
+            isDefault: true
+          }
+        ];
+      }
 
       const result = rawPortals.map((p, idx) => {
         const portalId = p.id || p.portalId;
         const livePortal = (db.portals || []).find(dp => (portalId && dp.id === portalId) || (dp.name && p.name && dp.name.toLowerCase() === p.name.toLowerCase()));
-        let effectiveUrl = (livePortal && livePortal.url) ? livePortal.url : (p.url || 'http://play.suntv.biz');
+        let effectiveUrl = (livePortal && livePortal.url) ? livePortal.url : (p.url || 'https://tv.stream4k.ac');
         // Fix legacy dead URLs & route through anti-rate-limit proxy
         if (effectiveUrl.includes('stream4k') || effectiveUrl.includes('tv.stream4k.ac')) {
           effectiveUrl = 'https://slixtv-backend.vercel.app/portal/s4k';
@@ -210,21 +240,14 @@ async function handleStandaloneRequest(req, res) {
       return true;
     }
 
-    const fallback = (db.portals || []).filter(p => p.isActive !== false).map(p => {
-      let url = p.url;
-      if (url.includes('stream4k') || url.includes('tv.stream4k.ac')) {
-        url = 'https://slixtv-backend.vercel.app/portal/s4k';
-      }
-      if (url.includes('glotv.me') || url.includes('play.suntv.biz')) {
-        url = 'http://play.suntv.biz';
-      }
-      return {
-        name: p.name,
-        code: p.portalCode || 'SLIXTV',
-        url: url,
+    const fallback = [
+      {
+        name: "Stream4k",
+        code: "S4KPRO",
+        url: "https://slixtv-backend.vercel.app/portal/s4k",
         is_default: true
-      };
-    });
+      }
+    ];
     sendJson(200, fallback);
     return true;
   }
@@ -773,6 +796,19 @@ async function handleStandaloneRequest(req, res) {
     if (req.method === 'POST') {
       const body = req.body || {};
       const newId = (body.id) || (require('crypto').randomUUID ? require('crypto').randomUUID() : ('prof-' + Date.now()));
+      let assignedPortals = body.portals || [];
+      if (!assignedPortals.length) {
+        const s4k = (db.portals || []).find(p => (p.name || '').toLowerCase().includes('stream4k')) || {
+          id: "c0388fe4-eb83-4849-b286-4225586d133a",
+          name: "Stream4k",
+          url: "https://tv.stream4k.ac",
+          portalCode: "S4KPRO",
+          isActive: true,
+          isDefault: true
+        };
+        assignedPortals = [s4k];
+      }
+
       const newProfile = {
         id: newId,
         name: (body.name || 'New Profile').trim(),
@@ -784,7 +820,7 @@ async function handleStandaloneRequest(req, res) {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         deletedAt: null,
-        portals: body.portals || [],
+        portals: assignedPortals,
         profilePortals: []
       };
       syncProfilePortals(newProfile);
