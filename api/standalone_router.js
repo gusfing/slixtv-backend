@@ -51,7 +51,29 @@ function saveDb() {
   }
 }
 
+const HOSTINGER_URL = 'https://paleturquoise-crow-536389.hostingersite.com';
+let lastHostingerSync = 0;
+
+async function syncHostingerProfiles() {
+  if (Date.now() - lastHostingerSync < 10000) return;
+  try {
+    const r = await fetch(`${HOSTINGER_URL}/api/v1/hierarchy/profiles`);
+    if (r.ok) {
+      const data = await r.json();
+      if (data.success && Array.isArray(data.data)) {
+        db.profiles = data.data;
+        db.hierarchyProfiles = data.data;
+        lastHostingerSync = Date.now();
+      }
+    }
+  } catch (e) {
+    // Fail silently, use cached db
+  }
+}
+
 async function handleStandaloneRequest(req, res) {
+  // Sync profiles in real-time with Hostinger master database
+  await syncHostingerProfiles();
   // CORS Headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
