@@ -2,6 +2,10 @@
   RewriteEngine On
   RewriteBase /
 
+  # Security: Block direct access to data folder, json database, and environment files
+  RewriteRule ^data(/.*)?$ - [F,L]
+  RewriteRule \.env$ - [F,L]
+
   # 1. Stalker Reverse Proxy routes
   RewriteRule ^portal/(.*)$ proxy.php [QSA,L]
   RewriteRule ^stalker_portal/(.*)$ proxy.php [QSA,L]
@@ -23,6 +27,17 @@
   RewriteRule ^ index.html [L]
 </IfModule>
 
+# Block sensitive file downloads
+<FilesMatch "^(db\.json|\.env|package\.json|server\.js)$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
 <IfModule mod_headers.c>
   Header set Access-Control-Allow-Origin "*"
   Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS, PATCH"
@@ -35,3 +50,4 @@
 </IfModule>
 
 Options -Indexes
+

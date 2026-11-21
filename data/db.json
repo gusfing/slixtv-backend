@@ -1,16 +1,18 @@
 {
   "user": {
     "id": "d937da3c-9ddd-47e3-9409-90e12349f251",
-    "email": "davidcooper271995@gmail.com",
-    "firstName": "Adnan",
-    "lastName": "S4k",
-    "role": "RESELLER",
+    "email": "admin@slixtv.com",
+    "firstName": "SlixTV",
+    "lastName": "Admin",
+    "role": "SUPER_ADMIN",
     "status": "ACTIVE",
     "twoFactorEnabled": false,
     "emailVerified": true,
     "createdAt": "2026-10-14T19:48:33.777Z",
     "lastLoginAt": "2026-10-23T19:37:58.620Z",
-    "permissions": null
+    "permissions": null,
+    "passwordHash": "b847ff9687e7586f0faec6d1c2718a6d786d33dd62b9c94a7902f96edf5bd0d9",
+    "salt": "slixtv_salt_2026"
   },
   "codes": [
     {
@@ -4495,83 +4497,6 @@
   ],
   "profiles": [
     {
-      "id": "e824daae-73a5-444f-a500-2bcf50353ca0",
-      "name": "s4k",
-      "description": "Stream4k Profile",
-      "isActive": true,
-      "source": "own",
-      "defaultPortal": {
-        "id": "c0388fe4-eb83-4849-b286-4225586d133a",
-        "name": "Stream4k"
-      },
-      "portals": [
-        {
-          "id": "c0388fe4-eb83-4849-b286-4225586d133a",
-          "name": "Stream4k",
-          "url": "https://tv.stream4k.ac",
-          "portalCode": "S4KPRO",
-          "isActive": true,
-          "isDefault": true
-        }
-      ],
-      "profilePortals": [
-        {
-          "id": "pp-e824daae-73a5-444f-a500-2bcf50353ca0-c0388fe4-eb83-4849-b286-4225586d133a",
-          "profileId": "e824daae-73a5-444f-a500-2bcf50353ca0",
-          "portalId": "c0388fe4-eb83-4849-b286-4225586d133a",
-          "isDefault": true,
-          "portal": {
-            "id": "c0388fe4-eb83-4849-b286-4225586d133a",
-            "name": "Stream4k",
-            "url": "https://tv.stream4k.ac",
-            "portalCode": "S4KPRO",
-            "isActive": true
-          }
-        }
-      ],
-      "createdAt": "2026-10-30T10:26:55.504Z",
-      "updatedAt": "2026-10-30T10:26:55.504Z"
-    },
-    {
-      "id": "profile-test-standalone",
-      "name": "test",
-      "description": "Test Stream4k Profile",
-      "isActive": true,
-      "source": "own",
-      "defaultPortal": {
-        "id": "c0388fe4-eb83-4849-b286-4225586d133a",
-        "name": "Stream4k"
-      },
-      "portals": [
-        {
-          "id": "c0388fe4-eb83-4849-b286-4225586d133a",
-          "name": "Stream4k",
-          "url": "https://tv.stream4k.ac",
-          "portalCode": "S4KPRO",
-          "isActive": true,
-          "isDefault": true
-        }
-      ],
-      "profilePortals": [
-        {
-          "id": "pp-profile-test-standalone-c0388fe4-eb83-4849-b286-4225586d133a",
-          "profileId": "profile-test-standalone",
-          "portalId": "c0388fe4-eb83-4849-b286-4225586d133a",
-          "isDefault": true,
-          "portal": {
-            "id": "c0388fe4-eb83-4849-b286-4225586d133a",
-            "name": "Stream4k",
-            "url": "https://tv.stream4k.ac",
-            "portalCode": "S4KPRO",
-            "isActive": true,
-            "isDefault": true
-          }
-        }
-      ],
-      "createdAt": "2026-11-01T19:00:00.000Z",
-      "updatedAt": "2026-11-01T19:00:00.000Z"
-    },
-    {
       "id": "a85843d0-dc18-4133-8505-d753e450b19d",
       "name": "glo",
       "description": "Glo TV Profile",
@@ -4607,6 +4532,44 @@
         }
       ],
       "createdAt": "2026-10-30T10:26:55.502Z",
+      "updatedAt": "2026-10-30T10:26:55.504Z"
+    },
+    {
+      "id": "e824daae-73a5-444f-a500-2bcf50353ca0",
+      "name": "s4k",
+      "description": "Stream4k Profile",
+      "isActive": true,
+      "source": "own",
+      "defaultPortal": {
+        "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+        "name": "Stream4k"
+      },
+      "portals": [
+        {
+          "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+          "name": "Stream4k",
+          "url": "https://tv.stream4k.ac",
+          "portalCode": "S4KPRO",
+          "isActive": true,
+          "isDefault": true
+        }
+      ],
+      "profilePortals": [
+        {
+          "id": "pp-e824daae-73a5-444f-a500-2bcf50353ca0-c0388fe4-eb83-4849-b286-4225586d133a",
+          "profileId": "e824daae-73a5-444f-a500-2bcf50353ca0",
+          "portalId": "c0388fe4-eb83-4849-b286-4225586d133a",
+          "isDefault": true,
+          "portal": {
+            "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+            "name": "Stream4k",
+            "url": "https://tv.stream4k.ac",
+            "portalCode": "S4KPRO",
+            "isActive": true
+          }
+        }
+      ],
+      "createdAt": "2026-10-30T10:26:55.504Z",
       "updatedAt": "2026-10-30T10:26:55.504Z"
     },
     {
@@ -4667,6 +4630,205 @@
       ],
       "createdAt": "2026-10-30T10:26:55.504Z",
       "updatedAt": "2026-10-30T10:26:55.504Z"
+    },
+    {
+      "id": "profile-test-standalone",
+      "name": "test",
+      "description": "Test Stream4k Profile",
+      "isActive": true,
+      "source": "own",
+      "defaultPortal": {
+        "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+        "name": "Stream4k"
+      },
+      "portals": [
+        {
+          "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+          "name": "Stream4k",
+          "url": "https://tv.stream4k.ac",
+          "portalCode": "S4KPRO",
+          "isActive": true,
+          "isDefault": true
+        }
+      ],
+      "profilePortals": [
+        {
+          "id": "pp-profile-test-standalone-c0388fe4-eb83-4849-b286-4225586d133a",
+          "profileId": "profile-test-standalone",
+          "portalId": "c0388fe4-eb83-4849-b286-4225586d133a",
+          "isDefault": true,
+          "portal": {
+            "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+            "name": "Stream4k",
+            "url": "https://tv.stream4k.ac",
+            "portalCode": "S4KPRO",
+            "isActive": true
+          }
+        }
+      ],
+      "createdAt": "2026-11-01T19:00:00.000Z",
+      "updatedAt": "2026-11-01T19:00:00.000Z"
+    },
+    {
+      "id": "prof-1794479016140",
+      "name": "HostingerVIP",
+      "description": "Created on Hostinger",
+      "isActive": true,
+      "source": "own",
+      "createdAt": "2026-11-12T10:23:36+00:00",
+      "updatedAt": "2026-11-12T10:23:36+00:00",
+      "portals": [
+        {
+          "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+          "name": "Stream4k",
+          "url": "https://tv.stream4k.ac",
+          "portalCode": "S4KPRO",
+          "isActive": true,
+          "isDefault": true
+        }
+      ],
+      "profilePortals": [
+        {
+          "id": "pp-prof-1794479016140-c0388fe4-eb83-4849-b286-4225586d133a",
+          "profileId": "prof-1794479016140",
+          "portalId": "c0388fe4-eb83-4849-b286-4225586d133a",
+          "isDefault": true,
+          "portal": {
+            "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+            "name": "Stream4k",
+            "url": "https://tv.stream4k.ac",
+            "portalCode": "S4KPRO",
+            "isActive": true
+          }
+        }
+      ],
+      "defaultPortal": {
+        "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+        "name": "Stream4k"
+      }
+    },
+    {
+      "id": "bcb7723b-e2d9-4fed-86a1-ea80ac8e49d2",
+      "name": "New Profile",
+      "description": "",
+      "isActive": true,
+      "source": "own",
+      "ownerId": "d937da3c-9ddd-47e3-9409-90e12349f251",
+      "createdById": "d937da3c-9ddd-47e3-9409-90e12349f251",
+      "createdAt": "2026-11-12T10:37:05.934Z",
+      "updatedAt": "2026-11-12T10:37:05.934Z",
+      "deletedAt": null,
+      "portals": [
+        {
+          "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+          "name": "Stream4k",
+          "url": "https://tv.stream4k.ac",
+          "portalCode": "S4KPRO",
+          "isActive": true,
+          "isDefault": true
+        }
+      ],
+      "profilePortals": [
+        {
+          "id": "pp-bcb7723b-e2d9-4fed-86a1-ea80ac8e49d2-c0388fe4-eb83-4849-b286-4225586d133a",
+          "profileId": "bcb7723b-e2d9-4fed-86a1-ea80ac8e49d2",
+          "portalId": "c0388fe4-eb83-4849-b286-4225586d133a",
+          "isDefault": true,
+          "portal": {
+            "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+            "name": "Stream4k",
+            "url": "https://tv.stream4k.ac",
+            "portalCode": "S4KPRO",
+            "isActive": true
+          }
+        }
+      ],
+      "defaultPortal": {
+        "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+        "name": "Stream4k"
+      }
+    },
+    {
+      "id": "bc82d806-6144-4905-8553-17e1920a8f08",
+      "name": "KUNAL2",
+      "description": "",
+      "isActive": true,
+      "source": "own",
+      "ownerId": "d937da3c-9ddd-47e3-9409-90e12349f251",
+      "createdById": "d937da3c-9ddd-47e3-9409-90e12349f251",
+      "createdAt": "2026-11-13T11:10:35.451Z",
+      "updatedAt": "2026-11-13T11:10:35.451Z",
+      "deletedAt": null,
+      "portals": [
+        {
+          "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+          "name": "Stream4k",
+          "url": "https://tv.stream4k.ac",
+          "portalCode": "S4KPRO",
+          "isActive": true,
+          "isDefault": true
+        }
+      ],
+      "profilePortals": [
+        {
+          "id": "pp-bc82d806-6144-4905-8553-17e1920a8f08-c0388fe4-eb83-4849-b286-4225586d133a",
+          "profileId": "bc82d806-6144-4905-8553-17e1920a8f08",
+          "portalId": "c0388fe4-eb83-4849-b286-4225586d133a",
+          "isDefault": true,
+          "portal": {
+            "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+            "name": "Stream4k",
+            "url": "https://tv.stream4k.ac",
+            "portalCode": "S4KPRO",
+            "isActive": true
+          }
+        }
+      ],
+      "defaultPortal": {
+        "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+        "name": "Stream4k"
+      }
+    },
+    {
+      "id": "ab21f8dd-becd-464e-9774-220d01d44dd7",
+      "name": "finalkey",
+      "description": "",
+      "isActive": true,
+      "source": "own",
+      "ownerId": "d937da3c-9ddd-47e3-9409-90e12349f251",
+      "createdById": "d937da3c-9ddd-47e3-9409-90e12349f251",
+      "createdAt": "2026-11-14T21:13:39.025Z",
+      "updatedAt": "2026-11-14T21:13:39.025Z",
+      "deletedAt": null,
+      "portals": [
+        {
+          "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+          "name": "Stream4k",
+          "url": "https://tv.stream4k.ac",
+          "portalCode": "S4KPRO",
+          "isActive": true,
+          "isDefault": true
+        }
+      ],
+      "profilePortals": [
+        {
+          "id": "pp-ab21f8dd-becd-464e-9774-220d01d44dd7-c0388fe4-eb83-4849-b286-4225586d133a",
+          "profileId": "ab21f8dd-becd-464e-9774-220d01d44dd7",
+          "portalId": "c0388fe4-eb83-4849-b286-4225586d133a",
+          "isDefault": true,
+          "portal": {
+            "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+            "name": "Stream4k",
+            "url": "https://tv.stream4k.ac",
+            "portalCode": "S4KPRO",
+            "isActive": true
+          }
+        }
+      ],
+      "defaultPortal": {
+        "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+        "name": "Stream4k"
+      }
     }
   ],
   "portals": [
@@ -5048,13 +5210,176 @@
             "name": "Stream4k",
             "url": "https://tv.stream4k.ac",
             "portalCode": "S4KPRO",
-            "isActive": true,
-            "isDefault": true
+            "isActive": true
           }
         }
       ],
       "createdAt": "2026-11-01T19:00:00.000Z",
       "updatedAt": "2026-11-01T19:00:00.000Z"
+    },
+    {
+      "id": "prof-1794479016140",
+      "name": "HostingerVIP",
+      "description": "Created on Hostinger",
+      "isActive": true,
+      "source": "own",
+      "createdAt": "2026-11-12T10:23:36+00:00",
+      "updatedAt": "2026-11-12T10:23:36+00:00",
+      "portals": [
+        {
+          "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+          "name": "Stream4k",
+          "url": "https://tv.stream4k.ac",
+          "portalCode": "S4KPRO",
+          "isActive": true,
+          "isDefault": true
+        }
+      ],
+      "profilePortals": [
+        {
+          "id": "pp-prof-1794479016140-c0388fe4-eb83-4849-b286-4225586d133a",
+          "profileId": "prof-1794479016140",
+          "portalId": "c0388fe4-eb83-4849-b286-4225586d133a",
+          "isDefault": true,
+          "portal": {
+            "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+            "name": "Stream4k",
+            "url": "https://tv.stream4k.ac",
+            "portalCode": "S4KPRO",
+            "isActive": true
+          }
+        }
+      ],
+      "defaultPortal": {
+        "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+        "name": "Stream4k"
+      }
+    },
+    {
+      "id": "bcb7723b-e2d9-4fed-86a1-ea80ac8e49d2",
+      "name": "New Profile",
+      "description": "",
+      "isActive": true,
+      "source": "own",
+      "ownerId": "d937da3c-9ddd-47e3-9409-90e12349f251",
+      "createdById": "d937da3c-9ddd-47e3-9409-90e12349f251",
+      "createdAt": "2026-11-12T10:37:05.934Z",
+      "updatedAt": "2026-11-12T10:37:05.934Z",
+      "deletedAt": null,
+      "portals": [
+        {
+          "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+          "name": "Stream4k",
+          "url": "https://tv.stream4k.ac",
+          "portalCode": "S4KPRO",
+          "isActive": true,
+          "isDefault": true
+        }
+      ],
+      "profilePortals": [
+        {
+          "id": "pp-bcb7723b-e2d9-4fed-86a1-ea80ac8e49d2-c0388fe4-eb83-4849-b286-4225586d133a",
+          "profileId": "bcb7723b-e2d9-4fed-86a1-ea80ac8e49d2",
+          "portalId": "c0388fe4-eb83-4849-b286-4225586d133a",
+          "isDefault": true,
+          "portal": {
+            "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+            "name": "Stream4k",
+            "url": "https://tv.stream4k.ac",
+            "portalCode": "S4KPRO",
+            "isActive": true
+          }
+        }
+      ],
+      "defaultPortal": {
+        "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+        "name": "Stream4k"
+      }
+    },
+    {
+      "id": "bc82d806-6144-4905-8553-17e1920a8f08",
+      "name": "KUNAL2",
+      "description": "",
+      "isActive": true,
+      "source": "own",
+      "ownerId": "d937da3c-9ddd-47e3-9409-90e12349f251",
+      "createdById": "d937da3c-9ddd-47e3-9409-90e12349f251",
+      "createdAt": "2026-11-13T11:10:35.451Z",
+      "updatedAt": "2026-11-13T11:10:35.451Z",
+      "deletedAt": null,
+      "portals": [
+        {
+          "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+          "name": "Stream4k",
+          "url": "https://tv.stream4k.ac",
+          "portalCode": "S4KPRO",
+          "isActive": true,
+          "isDefault": true
+        }
+      ],
+      "profilePortals": [
+        {
+          "id": "pp-bc82d806-6144-4905-8553-17e1920a8f08-c0388fe4-eb83-4849-b286-4225586d133a",
+          "profileId": "bc82d806-6144-4905-8553-17e1920a8f08",
+          "portalId": "c0388fe4-eb83-4849-b286-4225586d133a",
+          "isDefault": true,
+          "portal": {
+            "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+            "name": "Stream4k",
+            "url": "https://tv.stream4k.ac",
+            "portalCode": "S4KPRO",
+            "isActive": true
+          }
+        }
+      ],
+      "defaultPortal": {
+        "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+        "name": "Stream4k"
+      }
+    },
+    {
+      "id": "ab21f8dd-becd-464e-9774-220d01d44dd7",
+      "name": "finalkey",
+      "description": "",
+      "isActive": true,
+      "source": "own",
+      "ownerId": "d937da3c-9ddd-47e3-9409-90e12349f251",
+      "createdById": "d937da3c-9ddd-47e3-9409-90e12349f251",
+      "createdAt": "2026-11-14T21:13:39.025Z",
+      "updatedAt": "2026-11-14T21:13:39.025Z",
+      "deletedAt": null,
+      "portals": [
+        {
+          "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+          "name": "Stream4k",
+          "url": "https://tv.stream4k.ac",
+          "portalCode": "S4KPRO",
+          "isActive": true,
+          "isDefault": true
+        }
+      ],
+      "profilePortals": [
+        {
+          "id": "pp-ab21f8dd-becd-464e-9774-220d01d44dd7-c0388fe4-eb83-4849-b286-4225586d133a",
+          "profileId": "ab21f8dd-becd-464e-9774-220d01d44dd7",
+          "portalId": "c0388fe4-eb83-4849-b286-4225586d133a",
+          "isDefault": true,
+          "portal": {
+            "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+            "name": "Stream4k",
+            "url": "https://tv.stream4k.ac",
+            "portalCode": "S4KPRO",
+            "isActive": true
+          }
+        }
+      ],
+      "defaultPortal": {
+        "id": "c0388fe4-eb83-4849-b286-4225586d133a",
+        "name": "Stream4k"
+      }
     }
+  ],
+  "activeTokens": [
+    "slx_token_13327025d4b6a5cf56cd7c572c1a94d3_1795266241378"
   ]
 }

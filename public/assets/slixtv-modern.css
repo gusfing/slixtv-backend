@@ -1,0 +1,237 @@
+/**
+ * SlixTV Modern UI Theme Extension
+ * Clean, high-contrast, modern dark aesthetic with subtle glassmorphic depth.
+ */
+
+:root {
+  --slix-bg-base: #070B14;
+  --slix-bg-surface: #0E1526;
+  --slix-bg-card: rgba(14, 21, 38, 0.78);
+  --slix-border-subtle: rgba(255, 255, 255, 0.08);
+  --slix-border-hover: rgba(0, 210, 255, 0.25);
+  --slix-primary: #1F80E0;
+  --slix-accent: #00D2FF;
+  --slix-gradient-primary: linear-gradient(135deg, #1F80E0 0%, #00D2FF 100%);
+  --slix-gradient-glow: linear-gradient(135deg, rgba(31, 128, 224, 0.25) 0%, rgba(0, 210, 255, 0.1) 100%);
+  --slix-text-main: #FFFFFF;
+  --slix-text-muted: #8E9FB8;
+}
+
+/* 1. Global Page Canvas */
+body {
+  background-color: var(--slix-bg-base) !important;
+  background-image: 
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(31, 128, 224, 0.18), transparent 70%),
+    radial-gradient(circle at 100% 100%, rgba(0, 210, 255, 0.04), transparent 50%) !important;
+  color: var(--slix-text-main) !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Sleek Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #060910;
+}
+::-webkit-scrollbar-thumb {
+  background: #1c2b45;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--slix-primary);
+}
+
+/* 2. Glassmorphic Cards & Containers */
+.ant-card, .c4k-kpi, .ant-table-wrapper {
+  background: var(--slix-bg-card) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1px solid var(--slix-border-subtle) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35) !important;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.c4k-kpi:hover, .ant-card-hoverable:hover {
+  border-color: var(--slix-border-hover) !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5), 0 0 1px rgba(0, 210, 255, 0.3) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* 3. Modern Sidebar Navigation */
+.ant-layout-sider, .ant-menu-dark {
+  background: #090E1B !important;
+  border-right: 1px solid var(--slix-border-subtle) !important;
+}
+
+.ant-menu-dark .ant-menu-item {
+  border-radius: 10px !important;
+  margin: 4px 10px !important;
+  width: calc(100% - 20px) !important;
+  font-weight: 500 !important;
+  color: var(--slix-text-muted) !important;
+  transition: all 0.2s ease !important;
+}
+
+.ant-menu-dark .ant-menu-item:hover {
+  color: #FFFFFF !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.ant-menu-dark .ant-menu-item-selected {
+  background: var(--slix-gradient-glow) !important;
+  color: #FFFFFF !important;
+  border-left: 3px solid var(--slix-accent) !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 12px rgba(31, 128, 224, 0.2) !important;
+}
+
+.ant-menu-dark .ant-menu-item-selected .anticon {
+  color: var(--slix-accent) !important;
+}
+
+/* 4. KPI Stat Counters & Metrics */
+.c4k-kpi h2, .c4k-kpi .ant-statistic-content-value {
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+.c4k-kpi-sublabel {
+  color: var(--slix-text-muted) !important;
+  font-size: 13px !important;
+}
+
+/* 5. Polished Data Tables */
+.ant-table {
+  background: transparent !important;
+  color: var(--slix-text-main) !important;
+}
+
+.ant-table-thead > tr > th {
+  background: rgba(14, 21, 38, 0.95) !important;
+  color: #7E90AA !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  border-bottom: 1px solid var(--slix-border-subtle) !important;
+}
+
+.ant-table-tbody > tr > td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+  transition: background 0.15s ease !important;
+}
+
+.ant-table-tbody > tr:hover > td {
+  background: rgba(31, 128, 224, 0.07) !important;
+}
+
+/* 6. Glowing Status Pills */
+.status-pill, .ant-tag {
+  border-radius: 20px !important;
+  padding: 2px 10px !important;
+  font-weight: 600 !important;
+  font-size: 11px !important;
+  letter-spacing: 0.03em !important;
+  border: none !important;
+}
+
+.ant-tag-success, .tag-active {
+  background: rgba(16, 185, 129, 0.15) !important;
+  color: #10B981 !important;
+  border: 1px solid rgba(16, 185, 129, 0.35) !important;
+}
+
+.ant-tag-warning, .tag-trial {
+  background: rgba(245, 158, 11, 0.15) !important;
+  color: #F59E0B !important;
+  border: 1px solid rgba(245, 158, 11, 0.35) !important;
+}
+
+.ant-tag-processing, .tag-assigned {
+  background: rgba(0, 210, 255, 0.15) !important;
+  color: #00D2FF !important;
+  border: 1px solid rgba(0, 210, 255, 0.35) !important;
+}
+
+.ant-tag-error, .tag-expired {
+  background: rgba(239, 68, 68, 0.15) !important;
+  color: #EF4444 !important;
+  border: 1px solid rgba(239, 68, 68, 0.35) !important;
+}
+
+/* 7. Buttons & Form Controls */
+.ant-btn-primary {
+  background: var(--slix-gradient-primary) !important;
+  border: none !important;
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 14px rgba(31, 128, 224, 0.35) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.ant-btn-primary:hover {
+  filter: brightness(1.1) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 20px rgba(0, 210, 255, 0.45) !important;
+}
+
+.ant-btn-primary:active {
+  transform: translateY(0) scale(0.98) !important;
+}
+
+.ant-input, .ant-input-password, .ant-select-selector {
+  background: #0B111E !important;
+  border: 1px solid var(--slix-border-subtle) !important;
+  border-radius: 10px !important;
+  color: #FFFFFF !important;
+  transition: all 0.2s ease !important;
+}
+
+.ant-input:focus, .ant-input-focused, .ant-select-focused .ant-select-selector {
+  border-color: var(--slix-accent) !important;
+  box-shadow: 0 0 0 2px rgba(0, 210, 255, 0.2) !important;
+}
+
+/* 8. Modern Login Container */
+.login-container, .auth-wrapper {
+  background: radial-gradient(circle at 50% 30%, #101B30 0%, #060910 80%) !important;
+}
+
+.login-card {
+  background: rgba(14, 21, 38, 0.85) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 1px rgba(0, 210, 255, 0.3) !important;
+}
+
+/* 9. Header & Top Bar */
+.ant-layout-header {
+  background: rgba(9, 14, 27, 0.8) !important;
+  backdrop-filter: blur(16px) !important;
+  border-bottom: 1px solid var(--slix-border-subtle) !important;
+}
+
+/* 10. Modals & Dialogs */
+.ant-modal-content {
+  background: #0E1628 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7) !important;
+}
+
+.ant-modal-header {
+  background: transparent !important;
+  border-bottom: 1px solid var(--slix-border-subtle) !important;
+}
+
+.ant-modal-title {
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+}

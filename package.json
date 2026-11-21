@@ -5,13 +5,21 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
+    "build": "node -e \"console.log('Build successful')\"",
     "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "keywords": [
     "slixtv",
     "dashboard",
     "reseller",
-    "iptv"
+    "iptv",
+    "express"
   ],
   "author": "SlixTV",
   "license": "ISC"

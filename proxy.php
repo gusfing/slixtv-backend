@@ -135,3 +135,4 @@ if ($contentType) {
 
 http_response_code($httpCode ? $httpCode : 200);
 echo $response;
+

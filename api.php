@@ -169,3 +169,4 @@ foreach ($rawPortals as $idx => $p) {
 }
 
 echo json_encode($result, JSON_UNESCAPED_SLASHES);
+
