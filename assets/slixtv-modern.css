@@ -46,18 +46,32 @@ body {
 
 /* 2. Glassmorphic Cards & Containers */
 .ant-card, .c4k-kpi, .ant-table-wrapper {
+  position: relative;
   background: var(--slix-bg-card) !important;
-  backdrop-filter: blur(14px) !important;
-  -webkit-backdrop-filter: blur(14px) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
   border: 1px solid var(--slix-border-subtle) !important;
   border-radius: 14px !important;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35) !important;
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, box-shadow 0.2s ease !important;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, box-shadow 0.25s ease !important;
+  overflow: hidden;
+}
+
+.c4k-kpi::before, .ant-card-bordered::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(0, 210, 255, 0.75), transparent);
+  border-radius: 14px 14px 0 0;
+  pointer-events: none;
 }
 
 .c4k-kpi:hover, .ant-card-hoverable:hover {
   border-color: var(--slix-border-hover) !important;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5), 0 0 1px rgba(0, 210, 255, 0.3) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 210, 255, 0.15) !important;
   transform: translateY(-2px) !important;
 }
 
@@ -133,8 +147,10 @@ body {
 
 /* 6. Glowing Status Pills */
 .status-pill, .ant-tag {
+  display: inline-flex !important;
+  align-items: center !important;
   border-radius: 20px !important;
-  padding: 2px 10px !important;
+  padding: 3px 12px !important;
   font-weight: 600 !important;
   font-size: 11px !important;
   letter-spacing: 0.03em !important;
@@ -145,6 +161,23 @@ body {
   background: rgba(16, 185, 129, 0.15) !important;
   color: #10B981 !important;
   border: 1px solid rgba(16, 185, 129, 0.35) !important;
+}
+
+.ant-tag-success::before, .tag-active::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #10B981;
+  margin-right: 6px;
+  box-shadow: 0 0 8px #10B981;
+  animation: slix-pulse 2s infinite;
+}
+
+@keyframes slix-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
 }
 
 .ant-tag-warning, .tag-trial {
