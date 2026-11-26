@@ -6,9 +6,14 @@
   RewriteRule ^data(/.*)?$ - [F,L]
   RewriteRule \.env$ - [F,L]
 
-  # 1. Stalker Reverse Proxy routes
+  # 1. Stalker Reverse Proxy routes (APIs, Portals, Channel Logos, and Posters)
   RewriteRule ^portal/(.*)$ proxy.php [QSA,L]
   RewriteRule ^stalker_portal/(.*)$ proxy.php [QSA,L]
+  RewriteRule ^misc/(.*)$ proxy.php [QSA,L]
+  RewriteRule ^picon/(.*)$ proxy.php [QSA,L]
+  RewriteRule ^screenshots/(.*)$ proxy.php [QSA,L]
+  RewriteRule ^posters/(.*)$ proxy.php [QSA,L]
+  RewriteRule ^covers/(.*)$ proxy.php [QSA,L]
   RewriteRule (.*)load\.php$ proxy.php [QSA,L]
 
   # 2. SlixTV App Endpoints
@@ -50,4 +55,3 @@
 </IfModule>
 
 Options -Indexes
-

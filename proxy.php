@@ -2,6 +2,7 @@
 /**
  * SlixTV - Stalker Portal Anti-Rate-Limit & Firewall Reverse Proxy
  * Supports Stream4k, Glo / SunTV, and custom portals.
+ * Full support for API calls, Channel Logos, Posters, Screenshots, and Media Assets.
  */
 
 // Enable CORS
@@ -60,13 +61,39 @@ if (stripos($path, '/glo') !== false || stripos($path, 'suntv') !== false || (is
     }
 }
 
-// 2. Determine upstream stalker path
-$upstreamPath = '/stalker_portal/server/load.php';
-if (stripos($path, '/c/') !== false || preg_match('#/c$#i', $path)) {
-    $upstreamPath = '/stalker_portal/c/';
+// 2. Determine relative path on upstream
+// Strip /portal/{portalKey} prefix if present
+$relPath = preg_replace('#^/portal/[^/]+#i', '', $path);
+if ($relPath === '' || $relPath === false) {
+    $relPath = '/';
 }
 
-$targetUrl = rtrim($upstreamHost, '/') . $upstreamPath . $query;
+// Detect images, logos, posters, screenshots
+$isImage = preg_match('#\.(png|jpe?g|gif|webp|svg|ico)$#i', $relPath) || 
+           stripos($relPath, 'misc/logos') !== false || 
+           stripos($relPath, 'screenshots') !== false || 
+           stripos($relPath, 'posters') !== false || 
+           stripos($relPath, 'covers') !== false ||
+           stripos($relPath, 'picon') !== false;
+
+if ($isImage) {
+    // Preserve full asset path
+    if (stripos($relPath, 'stalker_portal') === false) {
+        $upstreamPath = '/stalker_portal/' . ltrim($relPath, '/');
+    } else {
+        $upstreamPath = '/' . ltrim($relPath, '/');
+    }
+} elseif (stripos($relPath, 'load.php') !== false) {
+    $upstreamPath = '/stalker_portal/server/load.php';
+} elseif (stripos($relPath, '/c/') !== false || preg_match('#/c/?$#i', $relPath) || $relPath === '/' || $relPath === '') {
+    $upstreamPath = '/stalker_portal/c/';
+} elseif (stripos($relPath, '/stalker_portal/') === 0) {
+    $upstreamPath = $relPath;
+} else {
+    $upstreamPath = '/stalker_portal/' . ltrim($relPath, '/');
+}
+
+$targetUrl = rtrim($upstreamHost, '/') . '/' . ltrim($upstreamPath, '/') . $query;
 
 // 3. Prepare headers
 $headers = [];
@@ -133,6 +160,9 @@ if ($contentType) {
     header("Content-Type: application/json");
 }
 
+if ($isImage && $httpCode >= 200 && $httpCode < 300) {
+    header("Cache-Control: public, max-age=604800, immutable");
+}
+
 http_response_code($httpCode ? $httpCode : 200);
 echo $response;
-

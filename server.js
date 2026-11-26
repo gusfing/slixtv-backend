@@ -31,6 +31,11 @@ const server = http.createServer(async (req, res) => {
                 pathname === '/api.php' || 
                 pathname.startsWith('/portal/') || 
                 pathname.startsWith('/stalker_portal') || 
+                pathname.startsWith('/misc/') || 
+                pathname.startsWith('/picon/') || 
+                pathname.startsWith('/screenshots/') || 
+                pathname.startsWith('/posters/') || 
+                pathname.startsWith('/covers/') || 
                 pathname.includes('load.php');
 
   if (isApi) {

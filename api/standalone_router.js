@@ -131,7 +131,12 @@ async function handleStandaloneRequest(req, res) {
   const isStalkerProxy = 
     pathname.includes('load.php') ||
     pathname.includes('/stalker_portal') ||
-    pathname.includes('/portal/');
+    pathname.includes('/portal/') ||
+    pathname.startsWith('/misc/') ||
+    pathname.startsWith('/picon/') ||
+    pathname.startsWith('/screenshots/') ||
+    pathname.startsWith('/posters/') ||
+    pathname.startsWith('/covers/');
 
   if (isStalkerProxy && !pathname.includes('/api/v1/') && !pathname.endsWith('api.php') && !pathname.includes('check-device')) {
     try {
@@ -163,13 +168,36 @@ async function handleStandaloneRequest(req, res) {
         }
       }
 
+      // Determine relative path on upstream
+      let relPath = pathname.replace(/^\/portal\/[^\/]+/i, '');
+      if (!relPath) relPath = '/';
+
+      const isImage = /\.(png|jpe?g|gif|webp|svg|ico)$/i.test(relPath) ||
+                      relPath.includes('misc/logos') ||
+                      relPath.includes('screenshots') ||
+                      relPath.includes('posters') ||
+                      relPath.includes('covers') ||
+                      relPath.includes('picon');
+
       let upstreamPath = '/stalker_portal/server/load.php';
-      if (pathname.includes('/c/') || pathname.endsWith('/c')) {
+      if (isImage) {
+        if (!relPath.startsWith('/stalker_portal/')) {
+          upstreamPath = `/stalker_portal/${relPath.replace(/^\/+/, '')}`;
+        } else {
+          upstreamPath = relPath;
+        }
+      } else if (relPath.includes('load.php')) {
+        upstreamPath = '/stalker_portal/server/load.php';
+      } else if (relPath.includes('/c/') || relPath.endsWith('/c') || relPath === '/' || relPath === '') {
         upstreamPath = '/stalker_portal/c/';
+      } else if (relPath.startsWith('/stalker_portal/')) {
+        upstreamPath = relPath;
+      } else {
+        upstreamPath = `/stalker_portal/${relPath.replace(/^\/+/, '')}`;
       }
 
       const queryString = urlObj.search || '';
-      const targetUrl = `${upstreamHost.replace(/\/+$/, '')}${upstreamPath}${queryString}`;
+      const targetUrl = `${upstreamHost.replace(/\/+$/, '')}/${upstreamPath.replace(/^\/+/, '')}${queryString}`;
 
       const fHeaders = {};
       for (const [k, v] of Object.entries(req.headers || {})) {
@@ -188,18 +216,23 @@ async function handleStandaloneRequest(req, res) {
         body: (['POST', 'PUT', 'PATCH'].includes(req.method) && req.body) ? (typeof req.body === 'string' ? req.body : JSON.stringify(req.body)) : undefined
       });
 
-      const responseText = await upstreamRes.text();
-      const contentType = upstreamRes.headers.get('content-type') || 'application/json';
+      const arrayBuffer = await upstreamRes.arrayBuffer();
+      const responseBuffer = Buffer.from(arrayBuffer);
+      const contentType = upstreamRes.headers.get('content-type') || (isImage ? 'image/png' : 'application/json');
+
+      if (isImage && upstreamRes.status >= 200 && upstreamRes.status < 300) {
+        if (res.setHeader) res.setHeader('Cache-Control', 'public, max-age=604800, immutable');
+      }
 
       if (typeof res.status === 'function' && typeof res.send === 'function') {
-        res.status(upstreamRes.status).set('Content-Type', contentType).send(responseText);
+        res.status(upstreamRes.status).set('Content-Type', contentType).send(responseBuffer);
       } else if (res.writeHead) {
         res.writeHead(upstreamRes.status, { 'Content-Type': contentType });
-        res.end(responseText);
+        res.end(responseBuffer);
       } else {
         res.statusCode = upstreamRes.status;
         if (res.setHeader) res.setHeader('Content-Type', contentType);
-        res.end(responseText);
+        res.end(responseBuffer);
       }
       return true;
     } catch (proxyErr) {
