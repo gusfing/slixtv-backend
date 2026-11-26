@@ -2,8 +2,36 @@
   "version": 2,
   "rewrites": [
     {
+      "source": "/portal/(.*)",
+      "destination": "/api/[...slug]"
+    },
+    {
+      "source": "/stalker_portal/(.*)",
+      "destination": "/api/[...slug]"
+    },
+    {
+      "source": "/misc/(.*)",
+      "destination": "/api/[...slug]"
+    },
+    {
+      "source": "/screenshots/(.*)",
+      "destination": "/api/[...slug]"
+    },
+    {
+      "source": "/posters/(.*)",
+      "destination": "/api/[...slug]"
+    },
+    {
+      "source": "/covers/(.*)",
+      "destination": "/api/[...slug]"
+    },
+    {
+      "source": "/picon/(.*)",
+      "destination": "/api/[...slug]"
+    },
+    {
       "source": "/(.*\\.php)",
-      "destination": "/api/$1"
+      "destination": "/api/[...slug]"
     },
     {
       "source": "/((?!api/).*)",
