@@ -3,35 +3,39 @@
   "rewrites": [
     {
       "source": "/portal/(.*)",
-      "destination": "/api/[...slug]"
+      "destination": "/api/portal/$1"
     },
     {
       "source": "/stalker_portal/(.*)",
-      "destination": "/api/[...slug]"
+      "destination": "/api/stalker_portal/$1"
     },
     {
       "source": "/misc/(.*)",
-      "destination": "/api/[...slug]"
+      "destination": "/api/misc/$1"
     },
     {
       "source": "/screenshots/(.*)",
-      "destination": "/api/[...slug]"
+      "destination": "/api/screenshots/$1"
     },
     {
       "source": "/posters/(.*)",
-      "destination": "/api/[...slug]"
+      "destination": "/api/posters/$1"
     },
     {
       "source": "/covers/(.*)",
-      "destination": "/api/[...slug]"
+      "destination": "/api/covers/$1"
     },
     {
       "source": "/picon/(.*)",
-      "destination": "/api/[...slug]"
+      "destination": "/api/picon/$1"
     },
     {
-      "source": "/(.*\\.php)",
-      "destination": "/api/[...slug]"
+      "source": "/api.php",
+      "destination": "/api/api.php"
+    },
+    {
+      "source": "/check-device.php",
+      "destination": "/api/check-device.php"
     },
     {
       "source": "/((?!api/).*)",

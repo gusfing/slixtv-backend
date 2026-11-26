@@ -86,8 +86,21 @@ async function handleStandaloneRequest(req, res) {
   }
 
   const urlObj = new URL(req.url, 'http://localhost');
-  const pathname = urlObj.pathname;
+  let pathname = urlObj.pathname;
   const searchParams = urlObj.searchParams;
+
+  // Normalize path if rewritten via /api/... on Vercel
+  if (
+    pathname.startsWith('/api/portal/') || 
+    pathname.startsWith('/api/stalker_portal/') || 
+    pathname.startsWith('/api/misc/') || 
+    pathname.startsWith('/api/picon/') || 
+    pathname.startsWith('/api/screenshots/') || 
+    pathname.startsWith('/api/posters/') || 
+    pathname.startsWith('/api/covers/')
+  ) {
+    pathname = pathname.slice(4);
+  }
 
   const sendJson = (statusCode, data) => {
     if (typeof res.status === 'function' && typeof res.json === 'function') {
