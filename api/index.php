@@ -30,7 +30,8 @@ function getDb() {
             'firstName' => 'SlixTV',
             'lastName' => 'Admin',
             'role' => 'RESELLER',
-            'status' => 'ACTIVE'
+            'status' => 'ACTIVE',
+            'twoFactorEnabled' => true
         ],
         'codes' => [],
         'profiles' => [],

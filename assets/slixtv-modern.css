@@ -1,20 +1,21 @@
 /**
  * SlixTV Modern UI Theme Extension
- * Clean, high-contrast, modern dark aesthetic with subtle glassmorphic depth.
+ * Ultra high-contrast, modern dark aesthetic with neon accents & sleek glassmorphism.
  */
 
 :root {
   --slix-bg-base: #070B14;
   --slix-bg-surface: #0E1526;
-  --slix-bg-card: rgba(14, 21, 38, 0.78);
-  --slix-border-subtle: rgba(255, 255, 255, 0.08);
-  --slix-border-hover: rgba(0, 210, 255, 0.25);
+  --slix-bg-card: rgba(14, 21, 38, 0.88);
+  --slix-border-subtle: rgba(255, 255, 255, 0.1);
+  --slix-border-hover: rgba(0, 210, 255, 0.35);
   --slix-primary: #1F80E0;
   --slix-accent: #00D2FF;
   --slix-gradient-primary: linear-gradient(135deg, #1F80E0 0%, #00D2FF 100%);
   --slix-gradient-glow: linear-gradient(135deg, rgba(31, 128, 224, 0.25) 0%, rgba(0, 210, 255, 0.1) 100%);
   --slix-text-main: #FFFFFF;
-  --slix-text-muted: #8E9FB8;
+  --slix-text-body: #F1F5F9;
+  --slix-text-muted: #94A3B8;
 }
 
 /* 1. Global Page Canvas */
@@ -23,7 +24,7 @@ body {
   background-image: 
     radial-gradient(ellipse 80% 50% at 50% -10%, rgba(31, 128, 224, 0.18), transparent 70%),
     radial-gradient(circle at 100% 100%, rgba(0, 210, 255, 0.04), transparent 50%) !important;
-  color: var(--slix-text-main) !important;
+  color: var(--slix-text-body) !important;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
   -webkit-font-smoothing: antialiased;
 }
@@ -44,39 +45,72 @@ body {
   background: var(--slix-primary);
 }
 
-/* 2. Glassmorphic Cards & Containers */
-.ant-card, .c4k-kpi, .ant-table-wrapper {
+/* 2. Hide Yellow 2FA Alert Banner */
+div[role="alert"]:has(b),
+.ant-alert,
+.ant-alert-warning {
+  display: none !important;
+}
+
+/* 3. Stat / KPI Cards (High Contrast & Vibrant Accents) */
+.c4k-kpi,
+.ant-card {
   position: relative;
   background: var(--slix-bg-card) !important;
   backdrop-filter: blur(16px) !important;
   -webkit-backdrop-filter: blur(16px) !important;
   border: 1px solid var(--slix-border-subtle) !important;
   border-radius: 14px !important;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
   transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, box-shadow 0.25s ease !important;
   overflow: hidden;
 }
 
-.c4k-kpi::before, .ant-card-bordered::before {
+.c4k-kpi::before,
+.ant-card-bordered::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(0, 210, 255, 0.75), transparent);
+  background: linear-gradient(90deg, transparent, rgba(0, 210, 255, 0.8), transparent);
   border-radius: 14px 14px 0 0;
   pointer-events: none;
 }
 
-.c4k-kpi:hover, .ant-card-hoverable:hover {
+.c4k-kpi:hover,
+.ant-card-hoverable:hover {
   border-color: var(--slix-border-hover) !important;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 210, 255, 0.15) !important;
   transform: translateY(-2px) !important;
 }
 
-/* 3. Modern Sidebar Navigation */
-.ant-layout-sider, .ant-menu-dark {
+/* KPI Card Typography */
+.c4k-kpi span,
+.c4k-kpi div {
+  color: var(--slix-text-body) !important;
+}
+
+.c4k-kpi h2,
+.c4k-kpi .ant-statistic-content-value {
+  color: #FFFFFF !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.02em !important;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* KPI Subtitle / Meaning */
+.c4k-kpi > div:last-child,
+.c4k-kpi-sublabel {
+  color: var(--slix-text-muted) !important;
+  font-size: 12px !important;
+  line-height: 1.4 !important;
+}
+
+/* 4. Modern Sidebar Navigation */
+.ant-layout-sider,
+.ant-menu-dark {
   background: #090E1B !important;
   border-right: 1px solid var(--slix-border-subtle) !important;
 }
@@ -100,36 +134,36 @@ body {
   color: #FFFFFF !important;
   border-left: 3px solid var(--slix-accent) !important;
   font-weight: 600 !important;
-  box-shadow: 0 2px 12px rgba(31, 128, 224, 0.2) !important;
+  box-shadow: 0 2px 12px rgba(31, 128, 224, 0.25) !important;
 }
 
 .ant-menu-dark .ant-menu-item-selected .anticon {
   color: var(--slix-accent) !important;
 }
 
-/* 4. KPI Stat Counters & Metrics */
-.c4k-kpi h2, .c4k-kpi .ant-statistic-content-value {
-  color: #FFFFFF !important;
-  font-weight: 700 !important;
-  letter-spacing: -0.02em !important;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+/* Sidebar Header Brand */
+.c4k-brand {
+  font-weight: 800 !important;
+  letter-spacing: 0.5px !important;
 }
 
-.c4k-kpi-sublabel {
-  color: var(--slix-text-muted) !important;
-  font-size: 13px !important;
+/* 5. Data Tables (High Contrast Dark Theme) */
+.ant-table-wrapper {
+  background: var(--slix-bg-surface) !important;
+  border: 1px solid var(--slix-border-subtle) !important;
+  border-radius: 14px !important;
+  overflow: hidden;
 }
 
-/* 5. Polished Data Tables */
 .ant-table {
   background: transparent !important;
-  color: var(--slix-text-main) !important;
+  color: var(--slix-text-body) !important;
 }
 
 .ant-table-thead > tr > th {
-  background: rgba(14, 21, 38, 0.95) !important;
-  color: #7E90AA !important;
-  font-size: 11px !important;
+  background: #111A30 !important;
+  color: #94A3B8 !important;
+  font-size: 11.5px !important;
   font-weight: 700 !important;
   text-transform: uppercase !important;
   letter-spacing: 0.06em !important;
@@ -137,16 +171,75 @@ body {
 }
 
 .ant-table-tbody > tr > td {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+  background: transparent !important;
+  color: var(--slix-text-body) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
   transition: background 0.15s ease !important;
+  font-size: 13px !important;
 }
 
 .ant-table-tbody > tr:hover > td {
-  background: rgba(31, 128, 224, 0.07) !important;
+  background: rgba(31, 128, 224, 0.08) !important;
+}
+
+/* Table Text Hierarchy */
+.ant-table-tbody > tr > td a,
+.ant-table-tbody > tr > td span[style*="fontFamily"] {
+  color: #00D2FF !important;
+  font-weight: 700 !important;
+}
+
+.ant-table-tbody > tr > td div > div:first-child {
+  color: #FFFFFF !important;
+  font-weight: 600 !important;
+}
+
+.ant-table-tbody > tr > td div > div:last-child {
+  color: #94A3B8 !important;
+}
+
+/* Pinned Right Actions Column Fix (Eliminates jarring white background) */
+.ant-table-cell-fix-right,
+.ant-table-cell-fix-right-first,
+.ant-table-cell-fix-left,
+.ant-table-cell-fix-left-last,
+td.ant-table-cell-fix-right,
+th.ant-table-cell-fix-right {
+  background: #0E1526 !important;
+  color: #FFFFFF !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.ant-table-tbody > tr:hover > td.ant-table-cell-fix-right {
+  background: #152038 !important;
+}
+
+/* Action Buttons inside Table */
+.ant-table-cell-fix-right .ant-btn,
+.ant-table-cell-fix-right .ant-btn-default {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #E2E8F0 !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-radius: 6px !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+}
+
+.ant-table-cell-fix-right .ant-btn:hover {
+  background: rgba(0, 210, 255, 0.15) !important;
+  border-color: #00D2FF !important;
+  color: #00D2FF !important;
+}
+
+.ant-table-cell-fix-right .ant-btn[disabled] {
+  background: rgba(255, 255, 255, 0.02) !important;
+  color: #475569 !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
 }
 
 /* 6. Glowing Status Pills */
-.status-pill, .ant-tag {
+.status-pill,
+.ant-tag {
   display: inline-flex !important;
   align-items: center !important;
   border-radius: 20px !important;
@@ -157,13 +250,15 @@ body {
   border: none !important;
 }
 
-.ant-tag-success, .tag-active {
+.ant-tag-success,
+.tag-active {
   background: rgba(16, 185, 129, 0.15) !important;
   color: #10B981 !important;
   border: 1px solid rgba(16, 185, 129, 0.35) !important;
 }
 
-.ant-tag-success::before, .tag-active::before {
+.ant-tag-success::before,
+.tag-active::before {
   content: '';
   display: inline-block;
   width: 6px;
@@ -180,29 +275,96 @@ body {
   50% { opacity: 0.4; transform: scale(0.8); }
 }
 
-.ant-tag-warning, .tag-trial {
+.ant-tag-warning,
+.tag-trial {
   background: rgba(245, 158, 11, 0.15) !important;
   color: #F59E0B !important;
   border: 1px solid rgba(245, 158, 11, 0.35) !important;
 }
 
-.ant-tag-processing, .tag-assigned {
+.ant-tag-processing,
+.tag-assigned {
   background: rgba(0, 210, 255, 0.15) !important;
   color: #00D2FF !important;
   border: 1px solid rgba(0, 210, 255, 0.35) !important;
 }
 
-.ant-tag-error, .tag-expired {
+.ant-tag-error,
+.tag-expired {
   background: rgba(239, 68, 68, 0.15) !important;
   color: #EF4444 !important;
   border: 1px solid rgba(239, 68, 68, 0.35) !important;
 }
 
-/* 7. Buttons & Form Controls */
+/* 7. Search Box & Filter Dropdowns in Toolbar */
+.ant-input-affix-wrapper,
+.ant-input-affix-wrapper-focused,
+.ant-input-affix-wrapper:hover,
+.ant-input,
+.ant-input:focus,
+input.ant-input,
+.ant-select-selector,
+.ant-select-single .ant-select-selector,
+.ant-select-selection-item,
+.ant-select-selection-placeholder {
+  background: #0B111E !important;
+  color: #FFFFFF !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+.ant-input::placeholder,
+input::placeholder,
+.ant-input-affix-wrapper input::placeholder,
+.ant-select-selection-placeholder {
+  color: #94A3B8 !important;
+  opacity: 1 !important;
+}
+
+.ant-input-prefix,
+.ant-input-suffix,
+.ant-input-clear-icon,
+.ant-select-arrow {
+  color: #94A3B8 !important;
+}
+
+.ant-select-dropdown {
+  background: #0E1526 !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
+  border-radius: 10px !important;
+}
+
+.ant-select-item {
+  color: #E2E8F0 !important;
+}
+
+.ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  background: rgba(0, 210, 255, 0.15) !important;
+  color: #00D2FF !important;
+  font-weight: 600 !important;
+}
+
+.ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Refresh Button */
+.ant-btn.ant-btn-icon-only {
+  background: #0B111E !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  color: #94A3B8 !important;
+}
+
+.ant-btn.ant-btn-icon-only:hover {
+  border-color: #00D2FF !important;
+  color: #00D2FF !important;
+}
+
+/* 8. Buttons & Controls */
 .ant-btn-primary {
   background: var(--slix-gradient-primary) !important;
   border: none !important;
-  border-radius: 10px !important;
+  border-radius: 8px !important;
   font-weight: 600 !important;
   box-shadow: 0 4px 14px rgba(31, 128, 224, 0.35) !important;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
@@ -218,45 +380,49 @@ body {
   transform: translateY(0) scale(0.98) !important;
 }
 
-.ant-input, .ant-input-password, .ant-select-selector {
-  background: #0B111E !important;
-  border: 1px solid var(--slix-border-subtle) !important;
-  border-radius: 10px !important;
-  color: #FFFFFF !important;
-  transition: all 0.2s ease !important;
-}
-
-.ant-input:focus, .ant-input-focused, .ant-select-focused .ant-select-selector {
-  border-color: var(--slix-accent) !important;
-  box-shadow: 0 0 0 2px rgba(0, 210, 255, 0.2) !important;
-}
-
-/* 8. Modern Login Container */
-.login-container, .auth-wrapper {
-  background: radial-gradient(circle at 50% 30%, #101B30 0%, #060910 80%) !important;
-}
-
-.login-card {
-  background: rgba(14, 21, 38, 0.85) !important;
-  backdrop-filter: blur(20px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  border-radius: 20px !important;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 1px rgba(0, 210, 255, 0.3) !important;
-}
-
 /* 9. Header & Top Bar */
-.ant-layout-header {
-  background: rgba(9, 14, 27, 0.8) !important;
+.ant-layout-header,
+header {
+  background: rgba(9, 14, 27, 0.85) !important;
   backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
   border-bottom: 1px solid var(--slix-border-subtle) !important;
+}
+
+/* Top Account Trigger Button */
+.c4k-account-trigger {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #FFFFFF !important;
+}
+
+.c4k-account-trigger span {
+  color: #FFFFFF !important;
+}
+
+/* Account Dropdown Menu */
+.c4k-account-menu {
+  background: #0E1526 !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7) !important;
+  border-radius: 14px !important;
+}
+
+.c4k-account-menu div,
+.c4k-account-item span {
+  color: #E2E8F0 !important;
+}
+
+.c4k-account-item:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
 }
 
 /* 10. Modals & Dialogs */
 .ant-modal-content {
   background: #0E1628 !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
   border-radius: 18px !important;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7) !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.75) !important;
 }
 
 .ant-modal-header {
@@ -267,4 +433,12 @@ body {
 .ant-modal-title {
   color: #FFFFFF !important;
   font-weight: 700 !important;
+}
+
+.ant-modal-close {
+  color: #94A3B8 !important;
+}
+
+.ant-modal-close:hover {
+  color: #FFFFFF !important;
 }

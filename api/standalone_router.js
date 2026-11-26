@@ -419,9 +419,14 @@ async function handleStandaloneRequest(req, res) {
             firstName: adminUser.firstName || 'SlixTV',
             lastName: adminUser.lastName || 'Admin',
             role: 'RESELLER',
-            status: 'ACTIVE'
+            status: 'ACTIVE',
+            twoFactorEnabled: true
           },
-          accessToken: token
+          accessToken: token,
+          tokens: {
+            accessToken: token,
+            refreshToken: token
+          }
         }
       });
       return true;

@@ -99,7 +99,7 @@ server.listen(PORT, () => {
   console.log(` SlixTV Standalone Server is running!`);
   console.log(` Local URL:    http://localhost:${PORT}`);
   console.log(` Dashboard:    http://localhost:${PORT}/dashboard`);
-  console.log(` Status:       100% Autonomous (Zero Cast4K Connection)`);
-  console.log(` Codes Active: 200 Activation Codes Ready`);
+  console.log(` Status:       100% Autonomous SlixTV Server`);
+  console.log(` Codes Active: Ready`);
   console.log(`=======================================================`);
 });
